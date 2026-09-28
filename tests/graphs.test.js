@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {TRAITS} from '../dist/biology.js';
+import {World} from '../dist/engine.js';
+import {layoutTraits,layoutLineages,traitRelations,edgePath} from '../dist/graphs.js';
+function geometry(g){const byId=new Map(g.nodes.map(n=>[n.id,n]));for(const a of g.nodes){assert.ok([a.x,a.y,a.width,a.height].every(Number.isFinite));for(const b of g.nodes)if(a.id!==b.id)assert.ok(Math.abs(a.x-b.x)>=(a.width+b.width)/2||Math.abs(a.y-b.y)>=(a.height+b.height)/2);}for(const e of g.edges){assert.ok(byId.get(e.from).x<byId.get(e.to).x);assert.ok(e.points.length>=2);assert.ok(e.points.every(p=>Number.isFinite(p.x)&&Number.isFinite(p.y)));assert.ok(!edgePath(e.points).includes('NaN'));}}
+test('all 72 traits and 109 prerequisites have nonoverlapping forward layouts',()=>{const g=layoutTraits(TRAITS.map(t=>t.id));assert.equal(g.nodes.length,72);assert.equal(g.edges.length,109);geometry(g);});
+test('selected trait paths follow actual dependency ancestry',()=>{const r=traitRelations('camera');assert.ok(r.ancestors.has('eyespot'));assert.ok(!r.ancestors.has('flight'));for(const e of r.before){const [from,to]=e.split(':');assert.ok(TRAITS.find(t=>t.id===to).parents.includes(from));}});
+test('lineage forests preserve independent roots, both offspring and chronology',()=>{const w=new World({origin:false,founders:2}),a=w.species[0];w.tick=100;const b=w.createSpecies(a.mean,a);b.specimen=structuredClone(a.specimen);w.tick=200;w.createSpecies(b.mean,b);const g=layoutLineages(w);assert.equal(g.roots.length,2);assert.equal(g.nodes.length,w.lineages.length);assert.equal(g.edges.length,w.lineages.length-2);geometry(g);});
+
+import {lineageView} from '../dist/views.js';
+test('lineage details show the selected split evidence rather than species origin evidence',()=>{const w=new World({origin:false,founders:1}),a=w.species[0];w.tick=100;const b=w.createSpecies(a.mean,a);b.specimen=structuredClone(a.specimen);b.speciationEvidence={cohort:12,gap:.15,tick:100,since:0,newborns:4,contributors:2,compatiblePairs:8,totalPairs:12,status:'分化支系',encounters:{encounters:3,births:0}};w.tick=200;const c=w.createSpecies(b.mean,b);c.speciationEvidence={cohort:9,gap:.2,tick:200,since:100,newborns:5,contributors:3,compatiblePairs:5,totalPairs:10,status:'分化支系',encounters:{encounters:4,births:1}};const fork=w.lineages.find(n=>n.species===b.id&&n.split===200);const html=lineageView(w,b.id,fork.id);assert.ok(html.includes('9 个体 · 均值差 0.200'));assert.ok(!html.includes('12 个体 · 均值差 0.150'));});

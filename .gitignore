@@ -1,0 +1,8 @@
+node_modules/
+.sites-runtime/
+.DS_Store
+.wrangler/
+.env
+.env.*
+results/
+.openai/

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0c1518"><meta name="description" content="从原始生命出发，观察遗传、突变、自然选择与物种分化。一个由生存和繁殖驱动的演化沙盒。">
+<title>源海 ORIGIN · 演化沙盒</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c1518'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%2388dfbc' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2388dfbc'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="header">
+ <a class="brand" href="./" aria-label="源海首页"><span class="brand-mark">◎</span><span>源海 <b>ORIGIN</b><small>演化观测站</small></span></a>
+ <nav class="main-tabs" aria-label="视图"><button class="tab active" data-view="world">生态现场</button><button class="tab" data-view="ecosystem">生态网络</button><button class="tab" data-view="tree">进化图谱</button><button class="tab" data-view="lineage">种群分支</button><button class="tab" data-view="observation">生命档案</button><button class="tab" data-view="morphology">形态图鉴</button><button class="tab" data-view="journal">观测记录</button></nav>
+ <div class="header-actions"><button id="guide-button" class="icon-button" title="模型与操作说明" aria-label="模型与操作说明">?</button><button id="new-button" class="button subtle">＋ 新世界</button></div>
+</header>
+<main>
+ <section class="world-top"><div><div class="eyebrow">LIFE, WITHOUT A SCRIPT</div><h1>让生命自己寻找出路<span class="live-label" id="live-label">自主演化中</span></h1></div><div class="seed-display">世界种子 <span id="seed-label">ORIGIN-042</span><button id="settings-button" class="text-button">环境设置 ↗</button></div></section>
+ <div class="workspace">
+  <section class="primary">
+   <div class="simulation-toolbar"><div class="clock-display"><span class="label">演化时步</span><strong id="time-value">000000</strong><span id="era-label">生命起源</span></div><div class="playback"><button id="pause-button" class="button play" aria-label="暂停模拟">Ⅱ 暂停</button><button id="step-button" class="button step" title="暂停并推进 24 时步">单步</button><div class="speeds" role="group" aria-label="模拟速度"><button data-speed="1" class="active">1×</button><button data-speed="4">4×</button><button data-speed="12">12×</button></div></div></div>
+   <section id="world-view" class="view active">
+    <div class="map-wrap"><canvas id="world-canvas" aria-label="生态地图，点击个体可追踪它与它的家系" tabindex="0"></canvas><div class="map-top"><span class="map-label">01 / 原始海盆</span><div class="map-modes" role="group" aria-label="地图图层"><button data-layer="life" class="active">生命</button><button data-layer="resources">养分</button><button data-layer="chemical">化能</button><button data-layer="food">食物</button><button data-layer="heat">温度</button></div></div><div id="origin-caption" class="origin-caption"><span>起源阶段</span><h2>寂静之中，第一次复制。</h2><p>准备初始复制者与环境资源…</p><div class="origin-track"><i id="origin-progress"></i></div></div><div class="map-bottom"><div class="map-key"><i class="water"></i>深海 <i class="shallow"></i>浅海 <i class="land"></i>陆地 <span>⊕ 热泉</span></div><span id="map-hint">点击生命，追踪它的谱系</span></div><div class="map-compass">N<br>↑</div></div>
+    <div class="environment-strip"><div><span>全球温度</span><strong id="temp-value">24.0<small> °C</small></strong></div><div><span>光照强度</span><strong id="light-value">100<small> %</small></strong></div><div><span>氧气丰度</span><strong id="oxygen-value">8.0<small> %</small></strong></div><div><span>最高世代</span><strong id="generation-value">0<small> 代</small></strong></div></div>
+    <section class="history-panel"><div class="section-heading"><h2>生命的潮汐 <span>种群数量</span></h2><span id="history-range" class="muted">实时观测</span></div><canvas id="history-canvas" aria-label="各物种种群数量的时间曲线"></canvas><div class="chart-foot"><span id="history-start">起源</span><div id="history-legend"></div><span>现在</span></div></section>
+   </section>
+   <section id="ecosystem-view" class="view"><div id="ecosystem-content"></div></section>
+   <section id="tree-view" class="view"><div id="tree-content"></div></section>
+   <section id="lineage-view" class="view"><div id="lineage-content"></div></section>
+   <section id="morphology-view" class="view"><div id="morphology-content"></div></section>
+   <section id="observation-view" class="view"><div id="observation-content"></div></section>
+   <section id="journal-view" class="view"><div id="journal-content"></div></section>
+  </section>
+  <aside class="sidebar">
+   <section class="population-summary"><span class="eyebrow">THE LIVING WORLD</span><div class="population-number"><strong id="population-value">0</strong><span>存活个体</span></div><div class="summary-meta"><span><b id="species-value">0</b> 个存续分群</span><span><b id="diversity-value">0</b> 次遗传变异</span></div></section>
+   <section class="species-panel"><div class="section-heading"><h2>谱系追踪</h2><button id="clear-selection" class="text-button">全部</button></div><div id="species-list" class="species-list"><p class="empty-copy">第一个生命还未出现。</p></div></section>
+   <section id="inspector" class="inspector"></section>
+   <section class="interventions"><div class="section-heading"><h2>改变选择压力</h2><span class="muted">即时干预</span></div><div class="intervention-grid"><button data-event="winter"><span>❄</span>冰期</button><button data-event="volcano"><span>△</span>火山</button><button data-event="bloom"><span>≋</span>营养涌流</button><button data-event="drought"><span>◒</span>海退</button><button data-event="meteor"><span>☄</span>陨石</button><button data-event="radiation"><span>☼</span>辐射</button></div><div id="active-effects"></div></section>
+   <section class="latest-event"><span class="eyebrow">最新观测</span><div id="latest-event"></div></section>
+  </aside>
+ </div>
+ <footer><span>突变创造可能，繁衍留下答案。</span><div><button id="save-button" class="text-button">导出存档</button><button id="load-button" class="text-button">读取存档</button><button id="report-button" class="text-button">实验报告</button></div><span class="version">源海 5.0 · 身体、亲缘与生态</span></footer>
+</main>
+<dialog id="settings-dialog" class="dialog"></dialog><dialog id="new-dialog" class="dialog"></dialog><dialog id="guide-dialog" class="dialog wide"></dialog>
+<input id="load-input" type="file" accept="application/json,.json" hidden><div id="toast" class="toast" role="status"></div>
+<canvas id="specimen-canvas" aria-hidden="true"></canvas>
+<script type="module" src="./app.js"></script>
+<dialog id="specimen-dialog" class="dialog specimen-dialog"></dialog>
+</body></html>
