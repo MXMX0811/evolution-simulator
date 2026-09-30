@@ -7,7 +7,8 @@ const args=Object.fromEntries(process.argv.slice(2).map(s=>{const i=s.indexOf('=
 const source=path.resolve(args['--source']||'dist');
 const {World}=await import(pathToFileURL(path.join(source,'engine.js')));
 const {balances}=await import(pathToFileURL(path.join(source,'ecology.js')));
-const {TRAITS,TRAIT_INDEX,DEFAULTS}=await import(pathToFileURL(path.join(source,'biology.js')));
+const {TRAITS,TRAIT_INDEX,DEFAULTS,GENES}=await import(pathToFileURL(path.join(source,'biology.js')));
+if(GENES.length!==12)throw new Error('This historical harness requires v5 sources via --source. For the current model, run scripts/calibrate-v6.mjs.');
 const seeds=(args['--seeds']||'ORIGIN-042,DELTA-103,EDEN-221,STUDY-004').split(',');
 const conditions={default:{},dark:{light:0},cold:{temperature:5},rich:{resources:2,light:1.5},stable:{volatility:0}};
 const chosen=(args['--conditions']||'default,dark,cold,rich').split(',');

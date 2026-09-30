@@ -1,6 +1,8 @@
-import {compatible,recognizes,inheritGenome} from './heredity.js';
+import {growColony,readyToReproduce,propaguleMaterial,releasePropagule,matureCells} from './life-history.js';
+import {allocation,uptake,metabolicInvestment,feedingOpportunity,contactPatches} from './metabolism.js';
+import {compatible,recognizes,inheritGenome,expressStructures} from './heredity.js';
 export {compatible,recognizes} from './heredity.js';
-import {initializeEcology,advanceResources,injectLife,spend,synthesize,ingest,recycleBody,preySuitability,eatPrey,balances,recentFlows,N_RATIO,dissipate} from './ecology.js';
+import {initializeEcology,advanceResources,injectLife,spend,synthesize,ingest,recycleBody,preySuitability,eatPrey,balances,recentFlows,N_RATIO,dissipate,emptySources,FOOD_SOURCES} from './ecology.js';
 import {SHAPE_GENES,develop} from './development.js';
 import {GENES, TRAITS, TRAIT_INDEX, PALETTE, DEFAULTS, has, phenotype} from './biology.js';
 export const W=960,H=624,COLS=48,ROWS=32,CELL=W/COLS;
@@ -62,9 +64,10 @@ export class World{
  }
  makeAgent(species,x,y,genes,traits=[],generation=0,energy=13,shape=species.founderShape,birth=null){
   const reproduction=birth?.reproduction||{mode:this.config.reproductionMode,signal:.5,tolerance:.17,socialSignal:.5,socialTolerance:.22};
-  const energyLedger={intake:0,maintenance:0,movement:0,reproduction:0,hunting:0,stress:0};
-  const a={id:this.nextId++,species:species.id,origin:birth?.origin??species.origin,born:this.tick,parents:birth?.parents||[],reproduction:{...reproduction},neutralAllele:birth?birth.neutralAllele:(this.markerRng.next()<.5?0:1),x:clamp(x,1,W-1),y:clamp(y,1,H-1),genes:[...genes],shape:[...shape],development:develop({shape,traits}),traits:[...traits],form:phenotype(traits),generation,energy,energyLedger,bodyEnergy:2*develop({shape,traits}).mass,handling:0,age:0,angle:this.rng.next()*Math.PI*2,heading:0,cooldown:0,alive:true,lastIntake:0,memory:null,sleeping:false,mutations:birth?.mutations||0};
-  this.records[a.id]={id:a.id,born:this.tick,parents:[...a.parents],genes:[...genes],shape:[...shape],traits:[...traits],generation,origin:a.origin,reproduction:{...reproduction},neutralAllele:a.neutralAllele,mode:birth?.mode||'founder',inheritance:birth?.inheritance||null,birthSpecies:species.id,initialEnergy:{reserve:energy,body:a.bodyEnergy},position:{x:a.x,y:a.y},death:null,offspring:[],energy:energyLedger};
+  const energyLedger={intake:0,maintenance:0,movement:0,reproduction:0,hunting:0,stress:0,growth:0,sources:emptySources()};
+  const a={id:this.nextId++,species:species.id,origin:birth?.origin??species.origin,born:this.tick,parents:birth?.parents||[],reproduction:{...reproduction},neutralAllele:birth?birth.neutralAllele:(this.markerRng.next()<.5?0:1),x:clamp(x,1,W-1),y:clamp(y,1,H-1),genes:[...genes],shape:[...shape],development:develop({shape,traits}),traits:[...traits],structureGenes:[...(birth?birth.structureGenes:traits)],form:phenotype(traits),generation,energy,energyLedger,cells:1,feeding:{tick:this.tick,sources:emptySources()},bodyEnergy:2*develop({shape,traits}).mass,handling:0,age:0,angle:this.rng.next()*Math.PI*2,heading:0,cooldown:0,alive:true,lastIntake:0,memory:null,sleeping:false,mutations:birth?.mutations||0};
+  a.metabolismBudget=allocation(a);
+  this.records[a.id]={id:a.id,born:this.tick,parents:[...a.parents],genes:[...genes],shape:[...shape],traits:[...traits],structureGenes:[...a.structureGenes],generation,origin:a.origin,reproduction:{...reproduction},neutralAllele:a.neutralAllele,mode:birth?.mode||'founder',inheritance:birth?.inheritance||null,birthSpecies:species.id,initialEnergy:{reserve:energy,body:a.bodyEnergy},cells:1,lifeHistory:{peakCells:1,divisions:0,releases:0,matureAt:null,materialFromParent:0},position:{x:a.x,y:a.y},death:null,offspring:[],energy:energyLedger};
   for(const id of a.parents)this.records[id].offspring.push(a.id);
   return a;
  }
@@ -110,9 +113,9 @@ export class World{
   const land=clamp(g[10]+p.land);
   return thermal*.027+(f.land?(1-land)*.16:land*.006);
  }
- armor(a,kinCount=0){return a.genes[4]*.6+a.form.defense+a.development.defense+(has(a,'tissue')?Math.min(.25,kinCount*.035):0)+Math.min(.3,kinCount*a.form.kinDefense)+(a.age<35?a.form.juvenile:0);}
+ armor(a,kinCount=0){return a.genes[4]*.6+a.form.defense+a.development.defense+Math.min(.3,kinCount*a.form.kinDefense)+(a.age<35?a.form.juvenile:0);}
  chooseHeading(a,near){
-  const g=a.genes,range=(22+g[9]*70)*(1+a.form.sense);let best=-Infinity,angle=a.angle;
+  const g=a.genes,budget=a.metabolismBudget,range=(22+g[9]*70)*(1+a.form.sense);let best=-Infinity,angle=a.angle;
   const kin=near.filter(b=>recognizes(a,b));
   let target=has(a,'memory')&&a.memory&&a.memory.expires>this.tick?a.memory:null;
   if(has(a,'hive'))for(const b of kin)if(b.memory&&b.memory.expires>this.tick&&(!target||b.memory.value>target.value))target=b.memory;
@@ -120,9 +123,10 @@ export class World{
    const theta=k===0?a.angle:this.rng.next()*Math.PI*2;
    const x=clamp(a.x+Math.cos(theta)*range,2,W-2),y=clamp(a.y+Math.sin(theta)*range,2,H-2),f=this.fieldAt(x,y);
    const crowd=this.bins[Math.floor(f.y/H*ROWS)*COLS+Math.floor(f.x/W*COLS)].length;
-   let value=g[0]*f.light*(1+a.form.photosense)/(1+crowd*.25)+g[1]*f.redox*.6*(1+a.form.chemical)+a.form.filter*f.plankton+a.form.detritus*f.detritus-this.comfort(a,f)*9;
+   const demand=uptake(a,f,this.environment.sea,0,budget);
+   let value=Math.min(f.photons,demand.photons)*(1+a.form.photosense)/(1+crowd*.25)+Math.min(f.redox,demand.redox)*(1+a.form.chemical)+Math.min(f.plankton,demand.plankton)+Math.min(f.detritus,demand.detritus)-this.comfort(a,f)*3;
    for(const b of near){const d=Math.max(12,Math.hypot(x-b.x,y-b.y));
-    value+=g[2]*preySuitability(a,b)*(recognizes(a,b)?.1:1)*Math.max(0,1-a.energy/30)*18/d;value-=b.genes[2]*preySuitability(b,a)*(recognizes(b,a)?.1:1)*(1-clamp(this.armor(a),0,.94))*15/d;
+    value+=budget.prey*preySuitability(a,b)*(recognizes(a,b)?.1:1)*Math.max(0,1-a.energy/30)*18/d;value-=b.metabolismBudget.prey*preySuitability(b,a)*(recognizes(b,a)?.1:1)*(1-clamp(this.armor(a),0,.94))*15/d;
     if(recognizes(a,b))value+=(g[5]+a.form.attract)*3/d+(a.energy>22?3/d:0);
    }
    if(target)value+=(1-Math.hypot(x-target.x,y-target.y)/W)*g[11]*.5;
@@ -133,15 +137,16 @@ export class World{
  }
  inherit(a,b){return inheritGenome(this,a,b);}
  reproduce(a,near){
-  if(a.cooldown>0||a.age<18||a.energy<25-a.genes[8]*5+Math.max(0,a.form.birthCost)||this.liveCount>=this.capacity)return null;
+  if(!readyToReproduce(a)||a.cooldown>0||a.age<18||a.energy<25-a.genes[8]*5+Math.max(0,a.form.birthCost)||this.liveCount>=this.capacity)return null;
   let mate=null;
-  for(const b of near){if(!b.alive||distance(a,b)>=24)continue;this.recordMating(a,b,'encounters');const eligible=b.age>=18&&b.energy>13&&b.cooldown<=0;if(!eligible)continue;this.recordMating(a,b,'eligible');if(compatible(a,b)){this.recordMating(a,b,'compatible');if(!mate)mate=b;}}
+  for(const b of near){if(!b.alive||distance(a,b)>=24)continue;this.recordMating(a,b,'encounters');const eligible=readyToReproduce(b)&&b.age>=18&&b.energy>13&&b.cooldown<=0;if(!eligible)continue;this.recordMating(a,b,'eligible');if(compatible(a,b)){this.recordMating(a,b,'compatible');if(!mate)mate=b;}}
   if(a.reproduction.mode==='asexual')mate=null;
   if(!mate&&a.reproduction.mode==='sexual')return null;
   const dna=this.inherit(a,mate),s=this.species.find(s=>s.id===a.species);
-  const childEnergy=9+a.form.childEnergy,childBody=2*develop(dna).mass,respiration=Math.max(.2,1.2+Math.min(0,a.form.birthCost)),cost=childEnergy+childBody+respiration,partner=mate?cost*.44:0;
+  const childEnergy=9+a.form.childEnergy,childBody=2*develop(dna).mass,respiration=Math.max(.2,1.2+Math.min(0,a.form.birthCost)),material=propaguleMaterial(a,childBody),cost=childEnergy+childBody-material.transferred+respiration,partner=mate?cost*.44:0;
   if(a.energy<cost-partner+2||mate&&mate.energy<partner+2)return null;
   const child=this.makeAgent(s,a.x+this.rng.normal()*(9+a.form.dispersal),a.y+this.rng.normal()*(9+a.form.dispersal),dna.genes,dna.traits,Math.max(a.generation,mate?.generation??0)+1,childEnergy,dna.shape,{...dna,origin:a.origin,parents:mate?[a.id,mate.id]:[a.id],mode:mate?'sexual':'asexual'});
+  releasePropagule(this,a,material,child);
   a.energy-=cost-partner;a.energyLedger.reproduction+=cost-partner;a.cooldown=Math.max(4,Math.round(22-a.genes[8]*11+a.form.cooldown));
   if(mate){mate.energy-=partner;mate.energyLedger.reproduction+=partner;mate.cooldown=18;this.totalCrossovers++;this.recordMating(a,mate,'births');if(a.species!==mate.species)this.geneFlows.push({tick:this.tick,parents:[a.id,mate.id],species:[a.species,mate.species],child:child.id});}
   dissipate(this,this.fieldAt(a.x,a.y),respiration);
@@ -161,14 +166,15 @@ export class World{
   this.tick++;this.updateEnvironment();const photoBefore=this.ecology.photo,heatBefore=this.ecology.heat;advanceResources(this,COLS,ROWS);
   if(!this.originDone){this.originProgress=clamp(this.originProgress+.009+this.envRng.next()*.009);if(this.originProgress>=1)this.seedLife();if(this.tick%12===0)this.sample();return;}
   if(this.tick%900===0&&this.envRng.next()<this.config.volatility)this.trigger(this.envRng.pick(['winter','bloom','volcano']),'自然事件');
+  // Recompute once per step so interventions to inherited parameters are immediately visible.
+  for(const a of this.agents)a.metabolismBudget=allocation(a);
   this.reindex();this.liveCount=this.agents.length;const current=[...this.agents];
   // Rotating iteration order avoids consistently giving the same founders first access to food.
   const offset=Math.floor(this.rng.next()*current.length);
   for(let i=0;i<current.length;i++){
    const a=current[(i+offset)%current.length];if(!a.alive)continue;
    const g=a.genes,p=a.form; a.age++;a.cooldown--;a.handling--;let f=this.fieldAt(a.x,a.y);
-   const potential=Math.min(f.nutrient/N_RATIO,Math.min(f.photons,g[0]*f.light*.44*(1+p.photo)*(has(a,'canopy')&&(f.land||f.height>this.environment.sea-.1)?1.6:1))+Math.min(f.redox,(.025+g[1]*.22)*Math.max(.1,1+p.mineral)*(1+f.vent*.45)))+Math.min(f.plankton,p.filter*(f.land?.15:1))+Math.min(f.detritus,p.detritus);
-   a.sleeping=has(a,'spore')&&a.energy<5&&potential<.12+p.sleepThreshold+this.comfort(a,f);
+   a.sleeping=has(a,'spore')&&a.energy<5&&contactPatches(this,a,COLS,ROWS).reduce((sum,part)=>sum+feedingOpportunity(a,part.field,this.environment.sea,0,a.metabolismBudget)*part.weight,0)<.12+p.sleepThreshold+this.comfort(a,f);
    const radius=(22+g[9]*45)*(1+p.sense);
    const near=this.neighbors(a,radius),kinCount=near.filter(b=>recognizes(a,b)&&distance(a,b)<34).length;
    if(!a.sleeping){
@@ -178,18 +184,20 @@ export class World{
     a.x=clamp(a.x+Math.cos(a.angle)*speed,1,W-1);a.y=clamp(a.y+Math.sin(a.angle)*speed,1,H-1);
     f=this.fieldAt(a.x,a.y);
     const crowd=this.bins[Math.floor(f.y/H*ROWS)*COLS+Math.floor(f.x/W*COLS)].length;
-    let photo=g[0]*f.light*.44/(1+crowd*.13)*(1+p.photo)*(has(a,'canopy')&&(f.land||f.height>this.environment.sea-.1)?1.6:1)*(has(a,'symbiosis')?1+Math.min(.6,kinCount*.09):1);
-    const respiration=clamp(.64+(has(a,'oxygen')?this.oxygen*.22:0)+(f.land?p.air:p.water)*this.oxygen,.3,.96);
-    let intake=synthesize(this,a,f,'photons',photo,.86);
-    const demand=(.025+g[1]*.22)*Math.max(.1,1+p.mineral+Math.min(.5,kinCount*p.kinMineral))*(1+f.vent*.45);
-    intake+=synthesize(this,a,f,'redox',demand,respiration);
-    intake+=ingest(this,a,f,'plankton',p.filter*(f.land?.15:1),respiration);
-    intake+=ingest(this,a,f,'detritus',p.detritus,respiration);
-    if(has(a,'radiant'))intake+=synthesize(this,a,f,'radiant',.12,.65);
+    const budget=a.metabolismBudget;let intake=0;
+    for(const {field:patch,weight,coverage} of contactPatches(this,a,COLS,ROWS)){
+     const demand=uptake(a,patch,this.environment.sea,kinCount,budget);
+     const respiration=clamp(.64+(has(a,'oxygen')?this.oxygen*.22:0)+(patch.land?p.air:p.water)*this.oxygen,.3,.96);
+     intake+=synthesize(this,a,patch,'photons',Math.min(patch.photons*coverage,demand.photons*weight/(1+crowd*.13)),.86);
+     intake+=synthesize(this,a,patch,'redox',Math.min(patch.redox*coverage,demand.redox*weight),respiration);
+     intake+=ingest(this,a,patch,'plankton',Math.min(patch.plankton*coverage,demand.plankton*weight),respiration);
+     intake+=ingest(this,a,patch,'detritus',Math.min(patch.detritus*coverage,demand.detritus*weight),respiration);
+     if(has(a,'radiant'))intake+=synthesize(this,a,patch,'radiant',Math.min(patch.radiant*coverage,.12*weight),.65);
+    }
 
-    if(g[2]>.2&&a.handling<=0&&a.energy<26&&(a.id+this.tick)%5===0){
+    if(budget.prey>.04&&a.handling<=0&&a.energy<26&&(a.id+this.tick)%5===0){
      const prey=near.filter(b=>b.alive&&distance(a,b)<8+g[2]*5+p.reach).sort((b,c)=>preySuitability(a,c)-preySuitability(a,b))[0];
-     if(prey){spend(this,a,.1,'hunting');const chance=clamp((g[2]*.14+p.hunt)*preySuitability(a,prey)*(recognizes(a,prey)?.1:1)*(1-clamp(this.armor(prey,this.neighbors(prey,30).filter(b=>recognizes(prey,b)).length),0,.94)),0,.25);
+     if(prey){spend(this,a,.1,'hunting');const chance=clamp((budget.prey*.5+p.hunt*budget.prey*4)*preySuitability(a,prey)*(recognizes(a,prey)?.1:1)*(1-clamp(this.armor(prey,this.neighbors(prey,30).filter(b=>recognizes(prey,b)).length),0,.94)),0,.25);
       spend(this,a,prey.form.poison,'stress');
       if(a.energy>0&&this.rng.next()<chance*(1-clamp(prey.form.conceal,0,.8))){intake+=eatPrey(this,a,prey);a.handling=Math.ceil(8+prey.development.mass*10);this.kill(prey,'捕食');}
      }
@@ -199,15 +207,15 @@ export class World{
 
    }else{a.lastIntake=0;}
    const traitCost=p.cost+a.development.cost;
-   const thermal=this.comfort(a,f)*(has(a,'colony')?1/(1+kinCount*.12):1);
-   const cost=.047+g[0]**2*.019+g[1]**2*.015+g[2]**2*.024+g[4]**2*.016+g[5]**2*.012+g[7]**2*.02+g[9]**2*.013+g[11]**2*.011+g[8]**2*.014+traitCost;
-   const metabolicScale=.8+.2*Math.pow(a.development.mass,.75);
+   const thermal=this.comfort(a,f);
+   const cost=.047+metabolicInvestment(a,a.metabolismBudget)+g[4]**2*.016+g[5]**2*.012+g[7]**2*.02+g[9]**2*.013+g[11]**2*.011+g[8]**2*.014+traitCost;
+   const metabolicScale=(.8+.2*Math.pow(a.development.unitMass,.75))*a.cells;
    spend(this,a,cost*(a.sleeping?.18:1)*metabolicScale,'maintenance');
    if(!a.sleeping)spend(this,a,g[3]**2*.027*a.development.movementCost*metabolicScale,'movement');
    spend(this,a,(thermal+this.environment.radiation*(has(a,'radiant')?.005:.035))*(a.sleeping?.18:1)*metabolicScale,'stress');
    if(a.energy<=0){this.kill(a,'饥饿');continue;}
    if(a.age>350+g[7]*260+p.lifespan&&this.rng.next()<.012){this.kill(a,'衰老');continue;}
-   if(!a.sleeping)this.reproduce(a,near);
+   if(!a.sleeping){growColony(this,a);this.reproduce(a,near);}
   }
   this.agents=this.agents.filter(a=>a.alive);this.saturated=this.agents.length>=this.capacity;
   if(this.saturated)this.recordEvent('capacity','达到计算容量','模拟在 2,200 个体处暂停。这是计算上限，不能当作生态平衡。可导出存档或施加陨石干预后继续。');
@@ -229,7 +237,7 @@ export class World{
    const combinations=new Map();for(const a of group)combinations.set(a.traits.join(','),(combinations.get(a.traits.join(','))||0)+1);
    let common='',most=0;for(const [traits,n] of combinations)if(n>most){common=traits;most=n;}
    let representative=null,best=Infinity;for(const a of group)if(a.traits.join(',')===common){const d=hereditaryDistance(a,{genes:s.mean,shape:s.meanShape});if(d<best){representative=a;best=d;}}
-   s.specimen={id:representative.id,genes:[...representative.genes],shape:[...representative.shape],traits:[...representative.traits],generation:representative.generation,cohort:most,sleeping:representative.sleeping};
+   s.specimen={id:representative.id,genes:[...representative.genes],shape:[...representative.shape],traits:[...representative.traits],structureGenes:[...representative.structureGenes],cells:representative.cells,generation:representative.generation,cohort:most,sleeping:representative.sleeping};
   }
  }
  speciate(){
@@ -296,27 +304,31 @@ export class World{
   if(d.duration)this.effects.push({type,...d,until:this.tick+d.duration});
   this.interventions.push({tick:this.tick,type,source:prefix==='自然事件'?'natural':'player',duration:d.duration||null,effect:{...d},seaBefore,seaAfter:this.config.sea,impact:type==='meteor'?{x:this.impact.x,y:this.impact.y}:null});this.recordEvent('environment',`${prefix} · ${d.title}`,d.detail);this.updateEnvironment();
  }
- summary(){return {version:5,ecosystem:balances(this),foodWeb:recentFlows(this),seed:this.config.seed,tick:this.tick,population:this.agents.length,livingSpecies:this.species.filter(s=>s.count>0).length,births:this.totalBirths,deaths:this.totalDeaths,mutations:this.totalMutations,crossovers:this.totalCrossovers,oxygen:this.oxygen,temperature:this.environment.temperature,species:this.species.map(s=>({id:s.id,name:s.name,count:s.count,generation:s.generation,mean:s.mean,shape:s.meanShape,lineage:s.lineage,parent:s.parent,traits:TRAITS.filter((t,i)=>s.traitCounts[i]>0).map(t=>({id:t.id,name:t.name,count:s.traitCounts[TRAIT_INDEX[t.id]]})),extinct:s.extinct})),lineages:this.lineages,events:this.events.slice(0,12)};}
- serialize(){return JSON.stringify({version:5,world:{...this,rng:{state:this.rng.state},envRng:{state:this.envRng.state},markerRng:{state:this.markerRng.state},bins:[]}});}
+ summary(){return {version:6,ecosystem:balances(this),foodWeb:recentFlows(this),seed:this.config.seed,tick:this.tick,population:this.agents.length,livingSpecies:this.species.filter(s=>s.count>0).length,births:this.totalBirths,deaths:this.totalDeaths,mutations:this.totalMutations,crossovers:this.totalCrossovers,oxygen:this.oxygen,temperature:this.environment.temperature,species:this.species.map(s=>({id:s.id,name:s.name,count:s.count,generation:s.generation,mean:s.mean,shape:s.meanShape,lineage:s.lineage,parent:s.parent,traits:TRAITS.filter((t,i)=>s.traitCounts[i]>0).map(t=>({id:t.id,name:t.name,count:s.traitCounts[TRAIT_INDEX[t.id]]})),extinct:s.extinct})),lineages:this.lineages,events:this.events.slice(0,12)};}
+ serialize(){return JSON.stringify({version:6,world:{...this,rng:{state:this.rng.state},envRng:{state:this.envRng.state},markerRng:{state:this.markerRng.state},bins:[]}});}
  static restore(text){
   const data=JSON.parse(text),d=data.world;
-  if(data.version!==5||!d||!Array.isArray(d.agents)||!Array.isArray(d.species)||d.fields?.length!==COLS*ROWS||!Number.isFinite(d.tick)||!Number.isFinite(d.rng?.state)||!Number.isFinite(d.envRng?.state)||!Number.isFinite(d.markerRng?.state)||!d.records||!Array.isArray(d.interventions)||!Array.isArray(d.geneFlows)||!d.matingEvidence||!d.pairEvidence||!d.config||!Array.isArray(d.effects)||!Array.isArray(d.events)||!Array.isArray(d.timeline)||!Array.isArray(d.history)||!d.ecology||!d.foodWeb)throw new Error('需要源海 v5 存档；旧实验请在对应的原离线版本中打开');
+  if(data.version!==6||!d||!Array.isArray(d.agents)||!Array.isArray(d.species)||d.fields?.length!==COLS*ROWS||!Number.isFinite(d.tick)||!Number.isFinite(d.rng?.state)||!Number.isFinite(d.envRng?.state)||!Number.isFinite(d.markerRng?.state)||!d.records||!Array.isArray(d.interventions)||!Array.isArray(d.geneFlows)||!d.matingEvidence||!d.pairEvidence||!d.config||!Array.isArray(d.effects)||!Array.isArray(d.events)||!Array.isArray(d.timeline)||!Array.isArray(d.history)||!d.ecology||!d.foodWeb)throw new Error('需要源海 v6 存档；旧实验请在对应的原离线版本中打开');
   const ids=new Set(d.species.map(s=>s.id));
+  const validSources=sources=>sources&&FOOD_SOURCES.every(key=>Number.isFinite(sources[key])&&sources[key]>=0);
+  const validBlueprint=a=>Array.isArray(a.structureGenes)&&new Set(a.structureGenes).size===a.structureGenes.length&&a.structureGenes.every(id=>id in TRAIT_INDEX)&&a.traits.length===expressStructures(a.structureGenes).length&&expressStructures(a.structureGenes).every(id=>a.traits.includes(id));
+
   const ledgerKeys=['energyIn','nutrientIn','heat','energyOut','nutrientOut','photo','chemical','recycled'];
   if(d.fields.some(f=>['nutrient','redox','plankton','detritus','photons','radiant','temp','height','vent','light','x','y'].some(k=>!Number.isFinite(f[k])))||ledgerKeys.some(k=>!Number.isFinite(d.ecology[k])||d.ecology[k]<0)||['organic','redox','energy','nutrient'].some(k=>!Number.isFinite(d.ecology.initial?.[k])))throw new Error('存档中的生态库存或收支记录无效');
 
   const foodSources=new Set(['photons','redox','plankton','detritus','radiant',...d.species.map(s=>String(s.id))]);if(Object.values(d.foodWeb).some(f=>!foodSources.has(f.source)||!ids.has(Number(f.consumer))||!Number.isFinite(f.amount)||f.amount<0||!Number.isFinite(f.tick)||f.tick>d.tick))throw new Error('存档中的食物网络记录无效');
-  if(d.agents.length>2200||d.species.length>40||d.agents.some(a=>!ids.has(a.species)||!d.records[a.id]||!Number.isInteger(a.origin)||![0,1].includes(a.neutralAllele)||!['asexual','sexual','facultative'].includes(a.reproduction?.mode)||['signal','tolerance','socialSignal','socialTolerance'].some(k=>!Number.isFinite(a.reproduction[k])||a.reproduction[k]<0||a.reproduction[k]>1)||['intake','maintenance','movement','reproduction','hunting','stress'].some(k=>!Number.isFinite(a.energyLedger?.[k])||a.energyLedger[k]<0)||a.genes?.length!==GENES.length||a.shape?.length!==SHAPE_GENES.length||a.shape.some(v=>!Number.isFinite(v)||v<0||v>1)||a.genes.some(g=>!Number.isFinite(g)||g<0||g>1)||![a.x,a.y,a.energy,a.age,a.bodyEnergy,a.handling].every(Number.isFinite)||!Array.isArray(a.traits)||a.traits.some(id=>!(id in TRAIT_INDEX))||new Set(a.traits).size!==a.traits.length||a.traits.some(id=>!TRAITS[TRAIT_INDEX[id]].parents.every(p=>a.traits.includes(p))||(TRAITS[TRAIT_INDEX[id]].excludes||[]).some(p=>a.traits.includes(p)))))throw new Error('存档中的个体数据无效');
+  if(d.agents.length>2200||d.species.length>40||d.agents.some(a=>!ids.has(a.species)||!d.records[a.id]||!Number.isInteger(a.origin)||![0,1].includes(a.neutralAllele)||!['asexual','sexual','facultative'].includes(a.reproduction?.mode)||['signal','tolerance','socialSignal','socialTolerance'].some(k=>!Number.isFinite(a.reproduction[k])||a.reproduction[k]<0||a.reproduction[k]>1)||['intake','maintenance','movement','reproduction','hunting','stress','growth'].some(k=>!Number.isFinite(a.energyLedger?.[k])||a.energyLedger[k]<0)||a.genes?.length!==GENES.length||a.shape?.length!==SHAPE_GENES.length||a.shape.some(v=>!Number.isFinite(v)||v<0||v>1)||a.genes.some(g=>!Number.isFinite(g)||g<0||g>1)||![a.x,a.y,a.energy,a.age,a.bodyEnergy,a.handling].every(Number.isFinite)||!Array.isArray(a.traits)||a.traits.some(id=>!(id in TRAIT_INDEX))||new Set(a.traits).size!==a.traits.length||a.traits.some(id=>!TRAITS[TRAIT_INDEX[id]].parents.every(p=>a.traits.includes(p))||(TRAITS[TRAIT_INDEX[id]].excludes||[]).some(p=>a.traits.includes(p)))||!validBlueprint(a)||!Number.isInteger(a.cells)||a.cells<1||a.cells>matureCells(a)||Math.abs(a.bodyEnergy-2*develop(a).unitMass*a.cells)>1e-8||!Number.isFinite(a.feeding?.tick)||a.feeding.tick>d.tick||!validSources(a.feeding.sources)||!validSources(a.energyLedger.sources)))throw new Error('存档中的个体数据无效');
   if(!Array.isArray(d.lineages)||!Number.isInteger(d.nextLineage))throw new Error('存档缺少谱系分叉记录');
   const nodes=new Map(d.lineages.map(n=>[n.id,n]));
   if(nodes.size!==d.lineages.length||d.lineages.some(n=>!Number.isInteger(n.id)||n.id<1||n.id>=d.nextLineage||n.parent!==null&&(!nodes.has(n.parent)||n.parent>=n.id)||![0,2].includes(n.children.length)||n.children.some(id=>nodes.get(id)?.parent!==n.id)||n.parent!==null&&!nodes.get(n.parent).children.includes(n.id))||d.species.some(s=>!nodes.has(s.lineage)||nodes.get(s.lineage).species!==s.id||nodes.get(s.lineage).children.length||s.meanShape?.length!==SHAPE_GENES.length))throw new Error('存档中的谱系结构无效');
-  const energyKeys=['intake','maintenance','movement','reproduction','hunting','stress'],reproductionKeys=['mode','signal','tolerance','socialSignal','socialTolerance'],livingIds=new Set(d.agents.map(a=>a.id));
+  const energyKeys=['intake','maintenance','movement','reproduction','hunting','stress','growth'],reproductionKeys=['mode','signal','tolerance','socialSignal','socialTolerance'],livingIds=new Set(d.agents.map(a=>a.id));
   const same=(left,right)=>Array.isArray(left)&&left.length===right.length&&left.every((value,index)=>value===right[index]);
   if(livingIds.size!==d.agents.length)throw new Error('存档中的个体身份重复');
   // Check the archive schema before dereferencing parents or rendering historical bodies.
   for(const [key,record]of Object.entries(d.records)){
    if(!record||Number(key)!==record.id||!Number.isInteger(record.id)||record.id<1||record.id>=d.nextId||!Number.isFinite(record.born)||record.born<0||record.born>d.tick||!Number.isInteger(record.generation)||record.generation<0||!Number.isInteger(record.origin)||record.origin<1||!ids.has(record.birthSpecies)||![0,1].includes(record.neutralAllele)||![record.position?.x,record.position?.y,record.initialEnergy?.reserve,record.initialEnergy?.body].every(Number.isFinite)||record.initialEnergy.reserve<0||record.initialEnergy.body<0)throw new Error('存档中的个体历史身份无效');
    if(record.genes?.length!==GENES.length||record.shape?.length!==SHAPE_GENES.length||!Array.isArray(record.genes)||!Array.isArray(record.shape)||[...record.genes,...record.shape].some(v=>!Number.isFinite(v)||v<0||v>1)||!Array.isArray(record.traits)||new Set(record.traits).size!==record.traits.length||record.traits.some(id=>!(id in TRAIT_INDEX))||record.traits.some(id=>!TRAITS[TRAIT_INDEX[id]].parents.every(p=>record.traits.includes(p))||(TRAITS[TRAIT_INDEX[id]].excludes||[]).some(p=>record.traits.includes(p))))throw new Error('存档中的历史身体性状无效');
+   if(!validBlueprint(record)||record.cells!==1||!record.lifeHistory||['peakCells','divisions','releases'].some(k=>!Number.isInteger(record.lifeHistory[k])||record.lifeHistory[k]<0)||!Number.isFinite(record.lifeHistory.materialFromParent)||record.lifeHistory.peakCells<1||record.lifeHistory.peakCells>matureCells(record)||record.lifeHistory.matureAt!==null&&(!Number.isFinite(record.lifeHistory.matureAt)||record.lifeHistory.matureAt<record.born||record.lifeHistory.matureAt>d.tick)||!validSources(record.energy?.sources))throw new Error('存档中的身体发育或摄入记录无效');
    if(!['sexual','asexual','facultative'].includes(record.reproduction?.mode)||reproductionKeys.slice(1).some(k=>!Number.isFinite(record.reproduction[k])||record.reproduction[k]<0||record.reproduction[k]>1)||energyKeys.some(k=>!Number.isFinite(record.energy?.[k])||record.energy[k]<0))throw new Error('存档中的历史繁殖或能量记录无效');
    if(!['founder','sexual','asexual'].includes(record.mode)||!Array.isArray(record.parents)||!Array.isArray(record.offspring)||new Set(record.parents).size!==record.parents.length||new Set(record.offspring).size!==record.offspring.length||record.parents.length!==({founder:0,sexual:2,asexual:1})[record.mode]||record.parents.some(id=>!d.records[id]||id>=record.id)||record.offspring.some(id=>!d.records[id]))throw new Error('存档中的亲本与后代身份无效');
    if(record.death!==null&&(!record.death||!Number.isFinite(record.death.tick)||record.death.tick<record.born||record.death.tick>d.tick||!['饥饿','衰老','捕食','灾变'].includes(record.death.cause)||![record.death.x,record.death.y].every(Number.isFinite))||livingIds.has(record.id)!==(record.death===null))throw new Error('存档中的生命状态与死亡记录不一致');
@@ -330,9 +342,9 @@ export class World{
    if(!Array.isArray(inherited.reproduction)||inherited.reproduction.length!==reproductionKeys.length||inherited.reproduction.some((entry,index)=>!entry||entry.id!==reproductionKeys[index]||!record.parents.includes(entry.parent)||entry.before!==d.records[entry.parent].reproduction[entry.id]||entry.after!==record.reproduction[entry.id]||entry.mutated!==(entry.before!==entry.after)))throw new Error('存档中的繁殖性状来源不一致');
    const marker=inherited.neutralAllele;
    if(!marker||!record.parents.includes(marker.parent)||marker.before!==d.records[marker.parent].neutralAllele||marker.after!==record.neutralAllele||marker.mutated!==(marker.before!==marker.after))throw new Error('存档中的中性标记来源不一致');
-   if(!Array.isArray(inherited.traits)||inherited.traits.some(entry=>!entry||!(entry.id in TRAIT_INDEX)||!Array.isArray(entry.parents)||entry.parents.some(id=>!record.parents.includes(id)||!d.records[id].traits.includes(entry.id))||entry.retained!==record.traits.includes(entry.id))||new Set(inherited.traits.map(t=>t.id)).size!==inherited.traits.length||[...record.traits,...record.parents.flatMap(id=>d.records[id].traits)].some(id=>!inherited.traits.some(t=>t.id===id)))throw new Error('存档中的结构继承记录无效');
+   if(!Array.isArray(inherited.traits)||inherited.traits.some(entry=>!entry||!(entry.id in TRAIT_INDEX)||!Array.isArray(entry.parents)||entry.parents.some(id=>!record.parents.includes(id)||!d.records[id].structureGenes.includes(entry.id))||entry.retained!==record.traits.includes(entry.id)||entry.encoded!==record.structureGenes.includes(entry.id))||new Set(inherited.traits.map(t=>t.id)).size!==inherited.traits.length||[...record.structureGenes,...record.parents.flatMap(id=>d.records[id].structureGenes)].some(id=>!inherited.traits.some(t=>t.id===id)))throw new Error('存档中的结构继承记录无效');
   }
-  for(const a of d.agents){const record=d.records[a.id];if(!a.alive||a.born!==record.born||a.origin!==record.origin||a.generation!==record.generation||a.neutralAllele!==record.neutralAllele||!same(a.parents,record.parents)||!same(a.genes,record.genes)||!same(a.shape,record.shape)||!same(a.traits,record.traits)||reproductionKeys.some(k=>a.reproduction[k]!==record.reproduction[k])||energyKeys.some(k=>a.energyLedger[k]!==record.energy[k]))throw new Error('存活个体与出生档案不一致');}
-  const w=Object.assign(Object.create(World.prototype),d);w.rng=Object.assign(Object.create(Random.prototype),d.rng);w.envRng=Object.assign(Object.create(Random.prototype),d.envRng);w.markerRng=Object.assign(Object.create(Random.prototype),d.markerRng);for(const a of w.agents){w.records[a.id].energy=a.energyLedger;a.form=phenotype(a.traits);a.development=develop(a);}w.reindex();return w;
+  for(const a of d.agents){const record=d.records[a.id];if(!a.alive||a.cells>record.lifeHistory.peakCells||a.cells!==1+record.lifeHistory.divisions-record.lifeHistory.releases||a.born!==record.born||a.origin!==record.origin||a.generation!==record.generation||a.neutralAllele!==record.neutralAllele||!same(a.parents,record.parents)||!same(a.genes,record.genes)||!same(a.shape,record.shape)||!same(a.traits,record.traits)||!same(a.structureGenes,record.structureGenes)||FOOD_SOURCES.some(k=>a.energyLedger.sources[k]!==record.energy.sources[k])||reproductionKeys.some(k=>a.reproduction[k]!==record.reproduction[k])||energyKeys.some(k=>a.energyLedger[k]!==record.energy[k]))throw new Error('存活个体与出生档案不一致');}
+  const w=Object.assign(Object.create(World.prototype),d);w.rng=Object.assign(Object.create(Random.prototype),d.rng);w.envRng=Object.assign(Object.create(Random.prototype),d.envRng);w.markerRng=Object.assign(Object.create(Random.prototype),d.markerRng);for(const a of w.agents){w.records[a.id].energy=a.energyLedger;a.form=phenotype(a.traits);a.development=develop(a,a.cells);a.metabolismBudget=allocation(a);}w.reindex();return w;
  }
 }

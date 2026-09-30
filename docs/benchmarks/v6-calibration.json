@@ -1,0 +1,4799 @@
+{
+  "schemaVersion": 1,
+  "title": "v6 calibration: observations, baseline comparison and assay limits",
+  "generatedAt": "2026-09-30T07:30:38.969Z",
+  "reproduction": {
+    "longAndInvasionScript": "scripts/calibrate-v6.mjs",
+    "colonyScript": "scripts/colony-assay.mjs",
+    "baselineModelVersion": 5,
+    "currentModelVersion": 6,
+    "baselineStartedAt": "2026-09-30T06:57:10.674Z",
+    "currentStartedAt": "2026-09-30T07:03:25.111Z",
+    "defaults": {
+      "seed": "ORIGIN-042",
+      "founders": 4,
+      "temperature": 24,
+      "light": 1,
+      "resources": 1,
+      "sea": 0.57,
+      "mutation": 0.09,
+      "volatility": 0.3,
+      "fiction": true,
+      "origin": true
+    },
+    "long": {
+      "seeds": [
+        "ORIGIN-042",
+        "DELTA-103",
+        "EDEN-221",
+        "STUDY-004"
+      ],
+      "horizons": [
+        6000,
+        12000
+      ],
+      "sampleEvery": 120
+    },
+    "invasion": {
+      "seeds": [
+        "ORIGIN-042",
+        "DELTA-103"
+      ],
+      "conditions": {
+        "mixed": {
+          "light": 1,
+          "resources": 1
+        },
+        "bright": {
+          "light": 1.6,
+          "resources": 1
+        },
+        "dim": {
+          "light": 0.35,
+          "resources": 1
+        }
+      },
+      "residentSteps": 1200,
+      "invasionSteps": 1200,
+      "residentFounders": 52,
+      "invaders": 8,
+      "mutation": 0,
+      "reproductionMode": "asexual",
+      "volatility": 0,
+      "initialReserve": 17,
+      "shape": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "note": "Each direction establishes its own resident. Both strategies are exact clones, introduced as independent origins. Invaders are external biomass recorded by injectLife. Local light/depth/vents still vary; mixed means the normal spatial world, not uniform resources. Initial introduction must be <=10% to be described as rare. Resident establishment for 1,200 steps is not proof of ecological equilibrium.",
+      "recipes": {
+        "photo": {
+          "genes": [
+            0.8,
+            0.1,
+            0.03,
+            0.3,
+            0.15,
+            0.15,
+            0.46,
+            0.55,
+            0.45,
+            0.4,
+            0.1,
+            0.6,
+            0.05,
+            0.05
+          ],
+          "traits": [
+            "pigment"
+          ]
+        },
+        "chemo": {
+          "genes": [
+            0.1,
+            0.8,
+            0.03,
+            0.3,
+            0.15,
+            0.15,
+            0.46,
+            0.55,
+            0.45,
+            0.4,
+            0.1,
+            0.6,
+            0.05,
+            0.05
+          ],
+          "traits": [
+            "vent"
+          ]
+        }
+      }
+    }
+  },
+  "metricNotes": {
+    "time": "Simulation steps; neither years nor generations. maxLivingGeneration describes living agents at that checkpoint.",
+    "effectiveLabels": "exp(Shannon entropy) over current classification labels; this is not a biological species count or a coexistence test.",
+    "origins": "Independent initial reproductive systems; loss of origins and branching labels are different quantities.",
+    "feeding": "Use sharedFeedingMetric for v5/v6 comparison. It includes decaying records from deceased organisms; e-folding time is 600 steps. Amounts are net intake flows, not external energy inputs. The v6-only individual metric covers currently living agents. Prey intake can include within-label predation.",
+    "colonies": "livingWithColonyTrait includes one-cell carriers; physicalGroups counts organisms with cells > 1. v5 physicalGroups is null because that model has no cell-number lifecycle.",
+    "structureInheritance": "A transmitting birth is not a fitness estimate. Parent counts include incomplete lifetimes. Selected structures missing from the original filtered table have zero recorded carriers/gains.",
+    "numerics": "Audit peaks and maximum balance residuals are sampled every 120 steps, with final/stop samples. They are not continuous maxima."
+  },
+  "conclusions": {
+    "supported": [
+      "All four v6 long runs reached T12000 without the computation capacity being reached.",
+      "Realized intake uses more detritus and several sources than the v5 baseline under the shared network metric.",
+      "All four v6 runs recorded colony-trait inheritance and had some physically multicellular organisms at T12000.",
+      "All 40 synthetic colony/tissue monoculture conditions completed maturation and reproduction and retained living descendants at T1500."
+    ],
+    "notEstablished": [
+      "Stable ecological coexistence is not demonstrated. Effective label diversity at T12000 was lower than v5 in three of four sampled worlds.",
+      "No recorded tissue, bilateral or radial innovation appeared in the four default v6 runs by T12000.",
+      "All valid finite rare-introduction assays in this batch failed to show an increase from the initial eight invaders; other directions were not rare or lacked a surviving resident. This does not establish universal competitive exclusion.",
+      "Synthetic-clone lifecycle feasibility does not demonstrate spontaneous emergence, competitive advantage or long-term persistence of complex morphology."
+    ],
+    "interpretationLimits": [
+      "Only four world seeds and two assay seeds were used; no statistical population-level claim is made.",
+      "The versions change multiple mechanisms, genome length, founding genotypes and random trajectories. Matching a seed does not isolate a mechanism effect.",
+      "The v6 worlds produced different numbers of births and generations; equal horizons do not imply equal evolutionary opportunities.",
+      "Most living individuals still obtain more than half their observed intake from photosynthesis. Multiple food sources do not by themselves establish separate stable feeding guilds.",
+      "ORIGIN shape means for length and thickness approach their upper bounds, indicating a body-size tradeoff that still needs calibration.",
+      "A fixed 1200-step resident phase is not an equilibrium test; eight initial invaders are not rare when only a few residents survive."
+    ]
+  },
+  "comparisonsAtT12000": [
+    {
+      "seed": "ORIGIN-042",
+      "tick": 12000,
+      "population": {
+        "v5": 860,
+        "v6": 1139
+      },
+      "labels": {
+        "v5": 8,
+        "v6": 5
+      },
+      "effectiveLabels": {
+        "v5": 4.5376627853927145,
+        "v6": 1.1874302017654357
+      },
+      "origins": {
+        "v5": 2,
+        "v6": 2
+      },
+      "physicalColoniesV6": 11,
+      "colonyTransmittedBirths": {
+        "v5": 0,
+        "v6": 228
+      }
+    },
+    {
+      "seed": "DELTA-103",
+      "tick": 12000,
+      "population": {
+        "v5": 910,
+        "v6": 1698
+      },
+      "labels": {
+        "v5": 4,
+        "v6": 11
+      },
+      "effectiveLabels": {
+        "v5": 1.3562706511693376,
+        "v6": 3.084120285630749
+      },
+      "origins": {
+        "v5": 1,
+        "v6": 2
+      },
+      "physicalColoniesV6": 18,
+      "colonyTransmittedBirths": {
+        "v5": 2,
+        "v6": 123
+      }
+    },
+    {
+      "seed": "EDEN-221",
+      "tick": 12000,
+      "population": {
+        "v5": 216,
+        "v6": 568
+      },
+      "labels": {
+        "v5": 4,
+        "v6": 4
+      },
+      "effectiveLabels": {
+        "v5": 1.4505052917173984,
+        "v6": 1.2999139734832124
+      },
+      "origins": {
+        "v5": 1,
+        "v6": 1
+      },
+      "physicalColoniesV6": 1,
+      "colonyTransmittedBirths": {
+        "v5": 0,
+        "v6": 901
+      }
+    },
+    {
+      "seed": "STUDY-004",
+      "tick": 12000,
+      "population": {
+        "v5": 1141,
+        "v6": 1780
+      },
+      "labels": {
+        "v5": 9,
+        "v6": 8
+      },
+      "effectiveLabels": {
+        "v5": 3.3877369570869353,
+        "v6": 1.624941849839294
+      },
+      "origins": {
+        "v5": 2,
+        "v6": 1
+      },
+      "physicalColoniesV6": 13,
+      "colonyTransmittedBirths": {
+        "v5": 0,
+        "v6": 214
+      }
+    }
+  ],
+  "longRuns": [
+    {
+      "modelVersion": 5,
+      "seed": "ORIGIN-042",
+      "termination": "horizon",
+      "requestedHorizons": [
+        6000,
+        12000
+      ],
+      "audit": {
+        "sampleCount": 101,
+        "sampledPeakPopulation": 940,
+        "maxSampledAbsoluteEnergyError": 0.000007901589924586006,
+        "maxSampledAbsoluteNutrientError": 3.090735845034942e-8,
+        "nonFiniteBalanceValues": 0
+      },
+      "sampledPopulationMinimumAfterT1200": {
+        "tick": 1200,
+        "population": 34
+      },
+      "sampledPhysicalColonyPeak": null,
+      "checkpoints": [
+        {
+          "tick": 6000,
+          "population": 344,
+          "labels": {
+            "richness": 2,
+            "effective": 1.749130681203557,
+            "counts": {
+              "1": 259,
+              "2": 85
+            }
+          },
+          "origins": {
+            "richness": 2,
+            "effective": 1.749130681203557,
+            "counts": {
+              "1": 259,
+              "2": 85
+            }
+          },
+          "historicalLabels": 4,
+          "births": 1894,
+          "deaths": 1654,
+          "crossovers": 791,
+          "maxLivingGeneration": 29,
+          "meanLivingGeneration": 24.026162790697676,
+          "deathCauses": {
+            "饥饿": 136,
+            "衰老": 1264,
+            "捕食": 254,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "cell": 344
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 0,
+            "physicalGroups": null,
+            "cells": null,
+            "note": "v5 has no physical cell-count lifecycle"
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 27150.874401645146,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 24262.957216695,
+                "share": 0.8936344685541634
+              },
+              {
+                "id": "redox",
+                "amount": 2378.819410064102,
+                "share": 0.08761483607761682
+              },
+              {
+                "id": "prey",
+                "amount": 460.75751612579427,
+                "share": 0.01697026435722732
+              },
+              {
+                "id": "plankton",
+                "amount": 48.340258760251615,
+                "share": 0.0017804310109925058
+              }
+            ]
+          },
+          "currentIndividualFeeding": null,
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 1,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 1,
+              "firstAppearanceTick": 4015
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 13,
+          "shapeBoundsCheck": null,
+          "balance": {
+            "organic": 9015.040501219579,
+            "redox": 451.54927477843387,
+            "energy": 9466.589775998013,
+            "nutrient": 939.4727609659011,
+            "energyError": 9.244986358680762e-7,
+            "nutrientError": -9.882569429464638e-9
+          }
+        },
+        {
+          "tick": 12000,
+          "population": 860,
+          "labels": {
+            "richness": 8,
+            "effective": 4.5376627853927145,
+            "counts": {
+              "1": 139,
+              "2": 321,
+              "5": 278,
+              "8": 49,
+              "11": 9,
+              "13": 26,
+              "14": 21,
+              "15": 17
+            }
+          },
+          "origins": {
+            "richness": 2,
+            "effective": 1.9360808884303427,
+            "counts": {
+              "1": 539,
+              "2": 321
+            }
+          },
+          "historicalLabels": 15,
+          "births": 9643,
+          "deaths": 8887,
+          "crossovers": 5914,
+          "maxLivingGeneration": 58,
+          "meanLivingGeneration": 51.94767441860465,
+          "deathCauses": {
+            "饥饿": 685,
+            "衰老": 6457,
+            "捕食": 1745,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "cell": 860
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 0,
+            "physicalGroups": null,
+            "cells": null,
+            "note": "v5 has no physical cell-count lifecycle"
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 77275.13313893852,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 71495.98815266401,
+                "share": 0.9252133933450005
+              },
+              {
+                "id": "redox",
+                "amount": 2751.781826428211,
+                "share": 0.03561018551052619
+              },
+              {
+                "id": "prey",
+                "amount": 2577.2185578178583,
+                "share": 0.03335120177902627
+              },
+              {
+                "id": "plankton",
+                "amount": 450.14460202843003,
+                "share": 0.005825219365446873
+              }
+            ]
+          },
+          "currentIndividualFeeding": null,
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 1,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 1,
+              "firstAppearanceTick": 4015
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 17,
+          "shapeBoundsCheck": null,
+          "balance": {
+            "organic": 20937.022044608104,
+            "redox": 283.38325147339197,
+            "energy": 21220.405296081495,
+            "nutrient": 1466.6567136378421,
+            "energyError": 0.0000012948494259035215,
+            "nutrientError": -5.503352440427989e-9
+          }
+        }
+      ]
+    },
+    {
+      "modelVersion": 5,
+      "seed": "DELTA-103",
+      "termination": "horizon",
+      "requestedHorizons": [
+        6000,
+        12000
+      ],
+      "audit": {
+        "sampleCount": 101,
+        "sampledPeakPopulation": 935,
+        "maxSampledAbsoluteEnergyError": 0.000032326794098480605,
+        "maxSampledAbsoluteNutrientError": 1.7387264961143956e-7,
+        "nonFiniteBalanceValues": 0
+      },
+      "sampledPopulationMinimumAfterT1200": {
+        "tick": 4080,
+        "population": 15
+      },
+      "sampledPhysicalColonyPeak": null,
+      "checkpoints": [
+        {
+          "tick": 6000,
+          "population": 474,
+          "labels": {
+            "richness": 3,
+            "effective": 1.3582213715108937,
+            "counts": {
+              "1": 438,
+              "3": 29,
+              "6": 7
+            }
+          },
+          "origins": {
+            "richness": 2,
+            "effective": 1.2588592865930743,
+            "counts": {
+              "1": 445,
+              "3": 29
+            }
+          },
+          "historicalLabels": 6,
+          "births": 2318,
+          "deaths": 1948,
+          "crossovers": 1225,
+          "maxLivingGeneration": 30,
+          "meanLivingGeneration": 25.282700421940927,
+          "deathCauses": {
+            "饥饿": 165,
+            "衰老": 1723,
+            "捕食": 60,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "cell": 474
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 0,
+            "physicalGroups": null,
+            "cells": null,
+            "note": "v5 has no physical cell-count lifecycle"
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 32327.218914662455,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 30067.635352065565,
+                "share": 0.9301027543210026
+              },
+              {
+                "id": "redox",
+                "amount": 2187.027550028921,
+                "share": 0.06765282085669808
+              },
+              {
+                "id": "prey",
+                "amount": 42.87411565662994,
+                "share": 0.00132625437931451
+              },
+              {
+                "id": "plankton",
+                "amount": 29.681896911342395,
+                "share": 0.000918170442984805
+              }
+            ]
+          },
+          "currentIndividualFeeding": null,
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 3,
+              "livingCarriers": 0,
+              "parents": 3,
+              "transmittedBirths": 2,
+              "mutationGains": 1,
+              "firstAppearanceTick": 2535
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 10,
+          "shapeBoundsCheck": null,
+          "balance": {
+            "organic": 13309.362769349158,
+            "redox": 349.3176651984851,
+            "energy": 13658.680434547643,
+            "nutrient": 955.8393262846553,
+            "energyError": -7.708695193286985e-8,
+            "nutrientError": -5.299489203025587e-8
+          }
+        },
+        {
+          "tick": 12000,
+          "population": 910,
+          "labels": {
+            "richness": 4,
+            "effective": 1.3562706511693376,
+            "counts": {
+              "1": 851,
+              "13": 30,
+              "14": 20,
+              "15": 9
+            }
+          },
+          "origins": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "1": 910
+            }
+          },
+          "historicalLabels": 15,
+          "births": 10157,
+          "deaths": 9351,
+          "crossovers": 6801,
+          "maxLivingGeneration": 60,
+          "meanLivingGeneration": 53.12747252747253,
+          "deathCauses": {
+            "饥饿": 1016,
+            "衰老": 8091,
+            "捕食": 244,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "cell": 910
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 0,
+            "physicalGroups": null,
+            "cells": null,
+            "note": "v5 has no physical cell-count lifecycle"
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 72433.88487661302,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 69921.31936893195,
+                "share": 0.9653122911747576
+              },
+              {
+                "id": "redox",
+                "amount": 2318.1268910252866,
+                "share": 0.03200334891569164
+              },
+              {
+                "id": "prey",
+                "amount": 191.02929569384446,
+                "share": 0.002637291869948049
+              },
+              {
+                "id": "plankton",
+                "amount": 3.4093209619429934,
+                "share": 0.000047068039602605555
+              }
+            ]
+          },
+          "currentIndividualFeeding": null,
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 3,
+              "livingCarriers": 0,
+              "parents": 3,
+              "transmittedBirths": 2,
+              "mutationGains": 1,
+              "firstAppearanceTick": 2535
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 16,
+          "shapeBoundsCheck": null,
+          "balance": {
+            "organic": 24398.95342785835,
+            "redox": 289.66184332060226,
+            "energy": 24688.61527117895,
+            "nutrient": 1401.1579769793025,
+            "energyError": -0.000032326794098480605,
+            "nutrientError": 1.7387264961143956e-7
+          }
+        }
+      ]
+    },
+    {
+      "modelVersion": 5,
+      "seed": "EDEN-221",
+      "termination": "horizon",
+      "requestedHorizons": [
+        6000,
+        12000
+      ],
+      "audit": {
+        "sampleCount": 101,
+        "sampledPeakPopulation": 703,
+        "maxSampledAbsoluteEnergyError": 0.000027980848244624212,
+        "maxSampledAbsoluteNutrientError": 4.823914423468523e-8,
+        "nonFiniteBalanceValues": 0
+      },
+      "sampledPopulationMinimumAfterT1200": {
+        "tick": 4080,
+        "population": 32
+      },
+      "sampledPhysicalColonyPeak": null,
+      "checkpoints": [
+        {
+          "tick": 6000,
+          "population": 527,
+          "labels": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "3": 527
+            }
+          },
+          "origins": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "3": 527
+            }
+          },
+          "historicalLabels": 5,
+          "births": 2341,
+          "deaths": 1918,
+          "crossovers": 1248,
+          "maxLivingGeneration": 30,
+          "meanLivingGeneration": 23.825426944971536,
+          "deathCauses": {
+            "饥饿": 215,
+            "衰老": 1333,
+            "捕食": 370,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "cell": 527
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 0,
+            "physicalGroups": null,
+            "cells": null,
+            "note": "v5 has no physical cell-count lifecycle"
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 32532.24318900627,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 29784.043492220586,
+                "share": 0.9155238179913031
+              },
+              {
+                "id": "redox",
+                "amount": 2104.5562246282043,
+                "share": 0.06469139592991252
+              },
+              {
+                "id": "prey",
+                "amount": 590.3937279022149,
+                "share": 0.01814795630513818
+              },
+              {
+                "id": "plankton",
+                "amount": 53.24974425526819,
+                "share": 0.0016368297736463206
+              }
+            ]
+          },
+          "currentIndividualFeeding": null,
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 14,
+          "shapeBoundsCheck": null,
+          "balance": {
+            "organic": 12740.043482763815,
+            "redox": 400.72113546477357,
+            "energy": 13140.764618228588,
+            "nutrient": 912.7013166486656,
+            "energyError": 3.5387893149163574e-7,
+            "nutrientError": -2.463002601871267e-8
+          }
+        },
+        {
+          "tick": 12000,
+          "population": 216,
+          "labels": {
+            "richness": 4,
+            "effective": 1.4505052917173984,
+            "counts": {
+              "3": 197,
+              "7": 13,
+              "8": 3,
+              "9": 3
+            }
+          },
+          "origins": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "3": 216
+            }
+          },
+          "historicalLabels": 9,
+          "births": 10385,
+          "deaths": 10273,
+          "crossovers": 7241,
+          "maxLivingGeneration": 58,
+          "meanLivingGeneration": 50.22222222222222,
+          "deathCauses": {
+            "饥饿": 964,
+            "衰老": 6786,
+            "捕食": 2523,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "cell": 216
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 0,
+            "physicalGroups": null,
+            "cells": null,
+            "note": "v5 has no physical cell-count lifecycle"
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 46286.4995594423,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 42242.0969729401,
+                "share": 0.9126224142029086
+              },
+              {
+                "id": "redox",
+                "amount": 2088.1616567184583,
+                "share": 0.04511383830260891
+              },
+              {
+                "id": "prey",
+                "amount": 1911.7992741664907,
+                "share": 0.04130360455776764
+              },
+              {
+                "id": "plankton",
+                "amount": 38.294868826755675,
+                "share": 0.0008273442405722737
+              },
+              {
+                "id": "detritus",
+                "amount": 6.146786790495221,
+                "share": 0.00013279869614251906
+              }
+            ]
+          },
+          "currentIndividualFeeding": null,
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 16,
+          "shapeBoundsCheck": null,
+          "balance": {
+            "organic": 9972.51608526596,
+            "redox": 402.2697569558857,
+            "energy": 10374.785842221845,
+            "nutrient": 1250.7601382376654,
+            "energyError": -0.000027980848244624212,
+            "nutrientError": 3.07636582874693e-8
+          }
+        }
+      ]
+    },
+    {
+      "modelVersion": 5,
+      "seed": "STUDY-004",
+      "termination": "horizon",
+      "requestedHorizons": [
+        6000,
+        12000
+      ],
+      "audit": {
+        "sampleCount": 101,
+        "sampledPeakPopulation": 1185,
+        "maxSampledAbsoluteEnergyError": 0.0000132739278342342,
+        "maxSampledAbsoluteNutrientError": 5.5850705393822864e-8,
+        "nonFiniteBalanceValues": 0
+      },
+      "sampledPopulationMinimumAfterT1200": {
+        "tick": 8640,
+        "population": 79
+      },
+      "sampledPhysicalColonyPeak": null,
+      "checkpoints": [
+        {
+          "tick": 6000,
+          "population": 364,
+          "labels": {
+            "richness": 5,
+            "effective": 3.6418336807925673,
+            "counts": {
+              "1": 9,
+              "2": 142,
+              "3": 138,
+              "4": 32,
+              "6": 43
+            }
+          },
+          "origins": {
+            "richness": 4,
+            "effective": 2.7728141073660932,
+            "counts": {
+              "1": 9,
+              "2": 142,
+              "3": 181,
+              "4": 32
+            }
+          },
+          "historicalLabels": 6,
+          "births": 2914,
+          "deaths": 2654,
+          "crossovers": 1695,
+          "maxLivingGeneration": 34,
+          "meanLivingGeneration": 25.846153846153847,
+          "deathCauses": {
+            "饥饿": 346,
+            "衰老": 1573,
+            "捕食": 735,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "cell": 364
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 0,
+            "physicalGroups": null,
+            "cells": null,
+            "note": "v5 has no physical cell-count lifecycle"
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 29878.31680141782,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 27355.680775991146,
+                "share": 0.9155696740819428
+              },
+              {
+                "id": "redox",
+                "amount": 1672.0552590027696,
+                "share": 0.05596216380313048
+              },
+              {
+                "id": "prey",
+                "amount": 846.0675703541025,
+                "share": 0.02831710956066822
+              },
+              {
+                "id": "plankton",
+                "amount": 4.51319606980078,
+                "share": 0.00015105255425856568
+              }
+            ]
+          },
+          "currentIndividualFeeding": null,
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 10,
+          "shapeBoundsCheck": null,
+          "balance": {
+            "organic": 9346.243875639406,
+            "redox": 539.842916144979,
+            "energy": 9886.086791784384,
+            "nutrient": 878.618085043455,
+            "energyError": 6.653690434177406e-7,
+            "nutrientError": -1.934404281200841e-8
+          }
+        },
+        {
+          "tick": 12000,
+          "population": 1141,
+          "labels": {
+            "richness": 9,
+            "effective": 3.3877369570869353,
+            "counts": {
+              "2": 763,
+              "3": 138,
+              "6": 66,
+              "9": 56,
+              "10": 33,
+              "14": 26,
+              "15": 2,
+              "16": 22,
+              "17": 35
+            }
+          },
+          "origins": {
+            "richness": 2,
+            "effective": 1.6668075245497849,
+            "counts": {
+              "2": 904,
+              "3": 237
+            }
+          },
+          "historicalLabels": 17,
+          "births": 11325,
+          "deaths": 10288,
+          "crossovers": 7618,
+          "maxLivingGeneration": 61,
+          "meanLivingGeneration": 55.16914986853637,
+          "deathCauses": {
+            "饥饿": 1257,
+            "衰老": 7281,
+            "捕食": 1750,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "cell": 1141
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 0,
+            "physicalGroups": null,
+            "cells": null,
+            "note": "v5 has no physical cell-count lifecycle"
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 89892.52616877551,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 86699.74280056308,
+                "share": 0.9644822155490669
+              },
+              {
+                "id": "redox",
+                "amount": 1634.8044063270074,
+                "share": 0.018186210533872642
+              },
+              {
+                "id": "prey",
+                "amount": 1486.1259332861136,
+                "share": 0.016532252419916137
+              },
+              {
+                "id": "plankton",
+                "amount": 71.85302859932023,
+                "share": 0.000799321497144427
+              }
+            ]
+          },
+          "currentIndividualFeeding": null,
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 12,
+          "shapeBoundsCheck": null,
+          "balance": {
+            "organic": 27276.89719118722,
+            "redox": 169.83119626787033,
+            "energy": 27446.728387455092,
+            "nutrient": 1393.1227581099254,
+            "energyError": -0.0000132739278342342,
+            "nutrientError": 1.5077603165991604e-8
+          }
+        }
+      ]
+    },
+    {
+      "modelVersion": 6,
+      "seed": "ORIGIN-042",
+      "termination": "horizon",
+      "requestedHorizons": [
+        6000,
+        12000
+      ],
+      "audit": {
+        "sampleCount": 101,
+        "sampledPeakPopulation": 1472,
+        "maxSampledAbsoluteEnergyError": 0.00003514626723699621,
+        "maxSampledAbsoluteNutrientError": 3.029890649486333e-8,
+        "nonFiniteBalanceValues": 0
+      },
+      "sampledPopulationMinimumAfterT1200": {
+        "tick": 1200,
+        "population": 293
+      },
+      "sampledPhysicalColonyPeak": {
+        "tick": 3120,
+        "population": 848,
+        "colonies": {
+          "livingWithColonyTrait": 38,
+          "physicalGroups": 32,
+          "cells": 928
+        },
+        "labels": 3,
+        "effectiveLabels": 2.36325968169218
+      },
+      "checkpoints": [
+        {
+          "tick": 6000,
+          "population": 1251,
+          "labels": {
+            "richness": 4,
+            "effective": 2.299035171192841,
+            "counts": {
+              "2": 24,
+              "3": 517,
+              "4": 691,
+              "7": 19
+            }
+          },
+          "origins": {
+            "richness": 3,
+            "effective": 2.1436590138340836,
+            "counts": {
+              "2": 24,
+              "3": 517,
+              "4": 710
+            }
+          },
+          "historicalLabels": 7,
+          "births": 11949,
+          "deaths": 10802,
+          "crossovers": 8515,
+          "maxLivingGeneration": 43,
+          "meanLivingGeneration": 34.42605915267786,
+          "deathCauses": {
+            "饥饿": 366,
+            "衰老": 6117,
+            "捕食": 4319,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 2,
+            "effective": 1.1457342765182121,
+            "counts": {
+              "cell": 1213,
+              "colony": 38
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 38,
+            "physicalGroups": 17,
+            "cells": 1290
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 132623.61847512075,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 92316.82373767652,
+                "share": 0.6960813224606333
+              },
+              {
+                "id": "detritus",
+                "amount": 24793.259446918608,
+                "share": 0.18694452565829855
+              },
+              {
+                "id": "prey",
+                "amount": 7185.627724186947,
+                "share": 0.054180603777862685
+              },
+              {
+                "id": "plankton",
+                "amount": 5756.534572796606,
+                "share": 0.04340504835401163
+              },
+              {
+                "id": "redox",
+                "amount": 2571.372993542058,
+                "share": 0.01938849974919384
+              }
+            ]
+          },
+          "currentIndividualFeeding": {
+            "scope": "recent-decayed",
+            "decaySteps": 600,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 31349.021119874415,
+                "share": 0.7129167974363099
+              },
+              {
+                "id": "detritus",
+                "amount": 7889.16022476203,
+                "share": 0.1794095841268104
+              },
+              {
+                "id": "prey",
+                "amount": 2214.5019999535057,
+                "share": 0.050360605126590983
+              },
+              {
+                "id": "plankton",
+                "amount": 1792.1954004152678,
+                "share": 0.04075681343792007
+              },
+              {
+                "id": "redox",
+                "amount": 728.0241696228492,
+                "share": 0.01655619987236876
+              }
+            ],
+            "strategies": [
+              {
+                "id": "photons",
+                "population": 1131,
+                "labels": 4
+              },
+              {
+                "id": "mixed",
+                "population": 84,
+                "labels": 2
+              },
+              {
+                "id": "detritus",
+                "population": 24,
+                "labels": 2
+              },
+              {
+                "id": "prey",
+                "population": 8,
+                "labels": 2
+              },
+              {
+                "id": "unobserved",
+                "population": 3,
+                "labels": 2
+              },
+              {
+                "id": "redox",
+                "population": 1,
+                "labels": 1
+              }
+            ]
+          },
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 346,
+              "livingCarriers": 38,
+              "parents": 100,
+              "transmittedBirths": 123,
+              "mutationGains": 239,
+              "firstAppearanceTick": 108,
+              "encodedBirthCarriers": 346,
+              "encodedTransmittedBirths": 123,
+              "expressedMutationGains": 223,
+              "dependencyInactivations": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 14,
+          "shapeBoundsCheck": [
+            {
+              "index": 0,
+              "name": "轴向延伸",
+              "mean": 0.7049904361388942,
+              "minimum": 0.2514328542091299,
+              "maximum": 0.9589063435672627,
+              "deviation": 0.0951002717562651
+            },
+            {
+              "index": 1,
+              "name": "躯体厚度",
+              "mean": 0.721168329537295,
+              "minimum": 0.43981688288990844,
+              "maximum": 1,
+              "deviation": 0.1069206101869112
+            }
+          ],
+          "balance": {
+            "organic": 23827.9180561447,
+            "redox": 20.413441486331745,
+            "energy": 23848.331497631032,
+            "nutrient": 1413.9287280938636,
+            "energyError": -0.000003258506694692187,
+            "nutrientError": -9.879386198008433e-9
+          }
+        },
+        {
+          "tick": 12000,
+          "population": 1139,
+          "labels": {
+            "richness": 5,
+            "effective": 1.1874302017654357,
+            "counts": {
+              "3": 1102,
+              "4": 3,
+              "14": 27,
+              "16": 4,
+              "17": 3
+            }
+          },
+          "origins": {
+            "richness": 2,
+            "effective": 1.018441848845023,
+            "counts": {
+              "3": 1136,
+              "4": 3
+            }
+          },
+          "historicalLabels": 17,
+          "births": 35392,
+          "deaths": 34357,
+          "crossovers": 24999,
+          "maxLivingGeneration": 96,
+          "meanLivingGeneration": 83.67515364354698,
+          "deathCauses": {
+            "饥饿": 1234,
+            "衰老": 14665,
+            "捕食": 18458,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 2,
+            "effective": 1.1038343341826153,
+            "counts": {
+              "cell": 1116,
+              "colony": 23
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 23,
+            "physicalGroups": 11,
+            "cells": 1156
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 188487.09846507228,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 121594.48579267343,
+                "share": 0.6451077383166656
+              },
+              {
+                "id": "detritus",
+                "amount": 29752.591182621272,
+                "share": 0.15784948373076366
+              },
+              {
+                "id": "prey",
+                "amount": 28482.40006874912,
+                "share": 0.15111060810364732
+              },
+              {
+                "id": "plankton",
+                "amount": 5917.299131858783,
+                "share": 0.03139365601171526
+              },
+              {
+                "id": "redox",
+                "amount": 2740.322289169685,
+                "share": 0.014538513837208238
+              }
+            ]
+          },
+          "currentIndividualFeeding": {
+            "scope": "recent-decayed",
+            "decaySteps": 600,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 29416.93973667195,
+                "share": 0.6477810070392465
+              },
+              {
+                "id": "prey",
+                "amount": 7126.871390542692,
+                "share": 0.15693855199525386
+              },
+              {
+                "id": "detritus",
+                "amount": 6585.212798103215,
+                "share": 0.14501086163647417
+              },
+              {
+                "id": "plankton",
+                "amount": 1452.5221815414768,
+                "share": 0.03198552568446845
+              },
+              {
+                "id": "redox",
+                "amount": 830.3128655506024,
+                "share": 0.018284053644557045
+              }
+            ],
+            "strategies": [
+              {
+                "id": "photons",
+                "population": 945,
+                "labels": 5
+              },
+              {
+                "id": "mixed",
+                "population": 143,
+                "labels": 2
+              },
+              {
+                "id": "prey",
+                "population": 40,
+                "labels": 1
+              },
+              {
+                "id": "detritus",
+                "population": 7,
+                "labels": 1
+              },
+              {
+                "id": "unobserved",
+                "population": 4,
+                "labels": 1
+              }
+            ]
+          },
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 926,
+              "livingCarriers": 23,
+              "parents": 200,
+              "transmittedBirths": 228,
+              "mutationGains": 733,
+              "firstAppearanceTick": 108,
+              "encodedBirthCarriers": 926,
+              "encodedTransmittedBirths": 228,
+              "expressedMutationGains": 698,
+              "dependencyInactivations": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 20,
+          "shapeBoundsCheck": [
+            {
+              "index": 0,
+              "name": "轴向延伸",
+              "mean": 0.9595831268754339,
+              "minimum": 0.7276850417595768,
+              "maximum": 1,
+              "deviation": 0.061442497468295935
+            },
+            {
+              "index": 1,
+              "name": "躯体厚度",
+              "mean": 0.979631208189419,
+              "minimum": 0.7562379771314568,
+              "maximum": 1,
+              "deviation": 0.03485637941785645
+            }
+          ],
+          "balance": {
+            "organic": 23775.843752781195,
+            "redox": 273.76689236552625,
+            "energy": 24049.61064514672,
+            "nutrient": 1621.5783734561905,
+            "energyError": 0.00003514626723699621,
+            "nutrientError": -3.828063199762255e-9
+          }
+        }
+      ]
+    },
+    {
+      "modelVersion": 6,
+      "seed": "DELTA-103",
+      "termination": "horizon",
+      "requestedHorizons": [
+        6000,
+        12000
+      ],
+      "audit": {
+        "sampleCount": 101,
+        "sampledPeakPopulation": 1786,
+        "maxSampledAbsoluteEnergyError": 0.000039069015429049614,
+        "maxSampledAbsoluteNutrientError": 1.5939349395921454e-7,
+        "nonFiniteBalanceValues": 0
+      },
+      "sampledPopulationMinimumAfterT1200": {
+        "tick": 4080,
+        "population": 148
+      },
+      "sampledPhysicalColonyPeak": {
+        "tick": 9840,
+        "population": 1534,
+        "colonies": {
+          "livingWithColonyTrait": 44,
+          "physicalGroups": 33,
+          "cells": 1588
+        },
+        "labels": 9,
+        "effectiveLabels": 2.109724224063444
+      },
+      "checkpoints": [
+        {
+          "tick": 6000,
+          "population": 1433,
+          "labels": {
+            "richness": 6,
+            "effective": 2.093466978068068,
+            "counts": {
+              "1": 1032,
+              "2": 9,
+              "4": 354,
+              "5": 15,
+              "6": 11,
+              "7": 12
+            }
+          },
+          "origins": {
+            "richness": 3,
+            "effective": 1.8342867357292427,
+            "counts": {
+              "1": 1055,
+              "2": 9,
+              "4": 369
+            }
+          },
+          "historicalLabels": 7,
+          "births": 8734,
+          "deaths": 7405,
+          "crossovers": 5948,
+          "maxLivingGeneration": 39,
+          "meanLivingGeneration": 31.84159106769016,
+          "deathCauses": {
+            "饥饿": 579,
+            "衰老": 6058,
+            "捕食": 768,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 2,
+            "effective": 1.0949670207208506,
+            "counts": {
+              "cell": 1407,
+              "colony": 26
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 26,
+            "physicalGroups": 11,
+            "cells": 1449
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 131824.7733691762,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 98614.02705276251,
+                "share": 0.7480690050313474
+              },
+              {
+                "id": "detritus",
+                "amount": 24516.59844564482,
+                "share": 0.18597868836827744
+              },
+              {
+                "id": "plankton",
+                "amount": 5385.290142982289,
+                "share": 0.04085188242956994
+              },
+              {
+                "id": "redox",
+                "amount": 2312.547789838004,
+                "share": 0.01754258877701005
+              },
+              {
+                "id": "prey",
+                "amount": 996.3099379485649,
+                "share": 0.007557835393795003
+              }
+            ]
+          },
+          "currentIndividualFeeding": {
+            "scope": "recent-decayed",
+            "decaySteps": 600,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 36761.882851454095,
+                "share": 0.7498345610010355
+              },
+              {
+                "id": "detritus",
+                "amount": 9440.585408821782,
+                "share": 0.19256024628065702
+              },
+              {
+                "id": "plankton",
+                "amount": 1785.3741538416466,
+                "share": 0.0364163949457636
+              },
+              {
+                "id": "redox",
+                "amount": 676.1776987505244,
+                "share": 0.01379204133667585
+              },
+              {
+                "id": "prey",
+                "amount": 362.63825078042305,
+                "share": 0.007396756435868093
+              }
+            ],
+            "strategies": [
+              {
+                "id": "photons",
+                "population": 1361,
+                "labels": 6
+              },
+              {
+                "id": "mixed",
+                "population": 41,
+                "labels": 2
+              },
+              {
+                "id": "detritus",
+                "population": 26,
+                "labels": 2
+              },
+              {
+                "id": "unobserved",
+                "population": 4,
+                "labels": 2
+              },
+              {
+                "id": "prey",
+                "population": 1,
+                "labels": 1
+              }
+            ]
+          },
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 187,
+              "livingCarriers": 26,
+              "parents": 42,
+              "transmittedBirths": 41,
+              "mutationGains": 151,
+              "firstAppearanceTick": 133,
+              "encodedBirthCarriers": 187,
+              "encodedTransmittedBirths": 41,
+              "expressedMutationGains": 146,
+              "dependencyInactivations": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 17,
+          "shapeBoundsCheck": [
+            {
+              "index": 0,
+              "name": "轴向延伸",
+              "mean": 0.6273095046695355,
+              "minimum": 0.28504681219052713,
+              "maximum": 0.9389222218401178,
+              "deviation": 0.11585650103500701
+            },
+            {
+              "index": 1,
+              "name": "躯体厚度",
+              "mean": 0.801693937913327,
+              "minimum": 0.5209726380252576,
+              "maximum": 1,
+              "deviation": 0.08177485899842753
+            }
+          ],
+          "balance": {
+            "organic": 25556.866723879808,
+            "redox": 8.780567782872154,
+            "energy": 25565.64729166268,
+            "nutrient": 1319.2390953763352,
+            "energyError": -0.0000026483596684556687,
+            "nutrientError": -5.310539563652128e-8
+          }
+        },
+        {
+          "tick": 12000,
+          "population": 1698,
+          "labels": {
+            "richness": 11,
+            "effective": 3.084120285630749,
+            "counts": {
+              "1": 1265,
+              "4": 52,
+              "6": 57,
+              "8": 55,
+              "13": 26,
+              "14": 22,
+              "15": 87,
+              "17": 30,
+              "19": 59,
+              "20": 23,
+              "21": 22
+            }
+          },
+          "origins": {
+            "richness": 2,
+            "effective": 1.1467198007109665,
+            "counts": {
+              "1": 1646,
+              "4": 52
+            }
+          },
+          "historicalLabels": 21,
+          "births": 28126,
+          "deaths": 26532,
+          "crossovers": 20696,
+          "maxLivingGeneration": 70,
+          "meanLivingGeneration": 62.909893992932865,
+          "deathCauses": {
+            "饥饿": 1711,
+            "衰老": 21979,
+            "捕食": 2842,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 2,
+            "effective": 1.1253469318624856,
+            "counts": {
+              "cell": 1655,
+              "colony": 43
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 43,
+            "physicalGroups": 18,
+            "cells": 1724
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 177044.8714308335,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 134926.19532852323,
+                "share": 0.7621016877703523
+              },
+              {
+                "id": "detritus",
+                "amount": 32369.254946349407,
+                "share": 0.18283079698806848
+              },
+              {
+                "id": "plankton",
+                "amount": 5677.489436590814,
+                "share": 0.03206808189758183
+              },
+              {
+                "id": "redox",
+                "amount": 2433.691420150976,
+                "share": 0.01374618423274549
+              },
+              {
+                "id": "prey",
+                "amount": 1638.2402992190562,
+                "share": 0.00925324911125184
+              }
+            ]
+          },
+          "currentIndividualFeeding": {
+            "scope": "recent-decayed",
+            "decaySteps": 600,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 47036.11504403677,
+                "share": 0.7616680626076844
+              },
+              {
+                "id": "detritus",
+                "amount": 11467.697712871315,
+                "share": 0.1856994161051708
+              },
+              {
+                "id": "plankton",
+                "amount": 1958.5798259197381,
+                "share": 0.03171579328084646
+              },
+              {
+                "id": "redox",
+                "amount": 724.6005605423443,
+                "share": 0.011733645616692994
+              },
+              {
+                "id": "prey",
+                "amount": 567.0928596606101,
+                "share": 0.009183082389605414
+              }
+            ],
+            "strategies": [
+              {
+                "id": "photons",
+                "population": 1645,
+                "labels": 11
+              },
+              {
+                "id": "mixed",
+                "population": 29,
+                "labels": 5
+              },
+              {
+                "id": "detritus",
+                "population": 22,
+                "labels": 4
+              },
+              {
+                "id": "prey",
+                "population": 1,
+                "labels": 1
+              },
+              {
+                "id": "unobserved",
+                "population": 1,
+                "labels": 1
+              }
+            ]
+          },
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 660,
+              "livingCarriers": 43,
+              "parents": 115,
+              "transmittedBirths": 123,
+              "mutationGains": 562,
+              "firstAppearanceTick": 133,
+              "encodedBirthCarriers": 660,
+              "encodedTransmittedBirths": 123,
+              "expressedMutationGains": 537,
+              "dependencyInactivations": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 18,
+          "shapeBoundsCheck": [
+            {
+              "index": 0,
+              "name": "轴向延伸",
+              "mean": 0.8207965292784822,
+              "minimum": 0.3621894405109595,
+              "maximum": 1,
+              "deviation": 0.11993388367871065
+            },
+            {
+              "index": 1,
+              "name": "躯体厚度",
+              "mean": 0.9381388790584647,
+              "minimum": 0.6837023270295014,
+              "maximum": 1,
+              "deviation": 0.06842059493792502
+            }
+          ],
+          "balance": {
+            "organic": 31790.295082859535,
+            "redox": 27.645713967272588,
+            "energy": 31817.940796826806,
+            "nutrient": 1733.5957834265273,
+            "energyError": -0.000037690619592467556,
+            "nutrientError": 1.5939349395921454e-7
+          }
+        }
+      ]
+    },
+    {
+      "modelVersion": 6,
+      "seed": "EDEN-221",
+      "termination": "horizon",
+      "requestedHorizons": [
+        6000,
+        12000
+      ],
+      "audit": {
+        "sampleCount": 101,
+        "sampledPeakPopulation": 1479,
+        "maxSampledAbsoluteEnergyError": 0.000012090142263332382,
+        "maxSampledAbsoluteNutrientError": 4.7544745029881597e-8,
+        "nonFiniteBalanceValues": 0
+      },
+      "sampledPopulationMinimumAfterT1200": {
+        "tick": 4920,
+        "population": 7
+      },
+      "sampledPhysicalColonyPeak": {
+        "tick": 8160,
+        "population": 453,
+        "colonies": {
+          "livingWithColonyTrait": 208,
+          "physicalGroups": 150,
+          "cells": 706
+        },
+        "labels": 1,
+        "effectiveLabels": 1
+      },
+      "checkpoints": [
+        {
+          "tick": 6000,
+          "population": 19,
+          "labels": {
+            "richness": 2,
+            "effective": 1.9751206555240497,
+            "counts": {
+              "4": 8,
+              "5": 11
+            }
+          },
+          "origins": {
+            "richness": 2,
+            "effective": 1.9751206555240497,
+            "counts": {
+              "2": 11,
+              "4": 8
+            }
+          },
+          "historicalLabels": 5,
+          "births": 473,
+          "deaths": 558,
+          "crossovers": 360,
+          "maxLivingGeneration": 23,
+          "meanLivingGeneration": 20.736842105263158,
+          "deathCauses": {
+            "饥饿": 29,
+            "衰老": 426,
+            "捕食": 103,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "cell": 19
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 0,
+            "physicalGroups": 0,
+            "cells": 19
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 1558.4592879413608,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 884.4107704947605,
+                "share": 0.5674904550525787
+              },
+              {
+                "id": "redox",
+                "amount": 317.6381614030374,
+                "share": 0.20381550154102515
+              },
+              {
+                "id": "detritus",
+                "amount": 263.5278855119346,
+                "share": 0.1690951361713404
+              },
+              {
+                "id": "plankton",
+                "amount": 89.92455723618183,
+                "share": 0.05770093446263023
+              },
+              {
+                "id": "prey",
+                "amount": 2.957913295446567,
+                "share": 0.0018979727724256486
+              }
+            ]
+          },
+          "currentIndividualFeeding": {
+            "scope": "recent-decayed",
+            "decaySteps": 600,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 324.95397464309815,
+                "share": 0.5595255510760925
+              },
+              {
+                "id": "detritus",
+                "amount": 117.26998766312705,
+                "share": 0.20192260932941128
+              },
+              {
+                "id": "redox",
+                "amount": 108.40712359388678,
+                "share": 0.18666199001278128
+              },
+              {
+                "id": "plankton",
+                "amount": 30.135912171985314,
+                "share": 0.05188984958171503
+              }
+            ],
+            "strategies": [
+              {
+                "id": "photons",
+                "population": 14,
+                "labels": 2
+              },
+              {
+                "id": "mixed",
+                "population": 5,
+                "labels": 2
+              }
+            ]
+          },
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 19,
+              "livingCarriers": 0,
+              "parents": 5,
+              "transmittedBirths": 13,
+              "mutationGains": 6,
+              "firstAppearanceTick": 170,
+              "encodedBirthCarriers": 19,
+              "encodedTransmittedBirths": 13,
+              "expressedMutationGains": 6,
+              "dependencyInactivations": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 11,
+          "shapeBoundsCheck": [
+            {
+              "index": 0,
+              "name": "轴向延伸",
+              "mean": 0.42394049902531594,
+              "minimum": 0.22788485327810049,
+              "maximum": 0.5665264232051092,
+              "deviation": 0.16719681647547255
+            },
+            {
+              "index": 1,
+              "name": "躯体厚度",
+              "mean": 0.5052360837784416,
+              "minimum": 0.4184096167206922,
+              "maximum": 0.6162911776089981,
+              "deviation": 0.07601369800711824
+            }
+          ],
+          "balance": {
+            "organic": 1732.3817819719366,
+            "redox": 4144.8543323111135,
+            "energy": 5877.2361142830505,
+            "nutrient": 744.1279905561896,
+            "energyError": 2.572560333646834e-7,
+            "nutrientError": -2.380829755566083e-8
+          }
+        },
+        {
+          "tick": 12000,
+          "population": 568,
+          "labels": {
+            "richness": 4,
+            "effective": 1.2999139734832124,
+            "counts": {
+              "5": 538,
+              "7": 11,
+              "8": 13,
+              "9": 6
+            }
+          },
+          "origins": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "2": 568
+            }
+          },
+          "historicalLabels": 9,
+          "births": 8939,
+          "deaths": 8475,
+          "crossovers": 6555,
+          "maxLivingGeneration": 58,
+          "meanLivingGeneration": 53.278169014084504,
+          "deathCauses": {
+            "饥饿": 985,
+            "衰老": 7346,
+            "捕食": 144,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 2,
+            "effective": 1.0686822527136874,
+            "counts": {
+              "cell": 561,
+              "colony": 7
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 7,
+            "physicalGroups": 1,
+            "cells": 569
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 112141.72761922001,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 78582.5675559438,
+                "share": 0.7007433292161579
+              },
+              {
+                "id": "detritus",
+                "amount": 26251.717422397025,
+                "share": 0.23409410555485088
+              },
+              {
+                "id": "plankton",
+                "amount": 5003.944649350754,
+                "share": 0.04462161191543054
+              },
+              {
+                "id": "redox",
+                "amount": 2248.6890584404114,
+                "share": 0.020052206312318376
+              },
+              {
+                "id": "prey",
+                "amount": 54.80893308801744,
+                "share": 0.0004887470012422362
+              }
+            ]
+          },
+          "currentIndividualFeeding": {
+            "scope": "recent-decayed",
+            "decaySteps": 600,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 15066.594989273643,
+                "share": 0.6370415183918551
+              },
+              {
+                "id": "detritus",
+                "amount": 6888.1601569826325,
+                "share": 0.29124324430665816
+              },
+              {
+                "id": "plankton",
+                "amount": 1084.3422511294896,
+                "share": 0.045847853121939806
+              },
+              {
+                "id": "redox",
+                "amount": 605.1594810935253,
+                "share": 0.025587182437671135
+              },
+              {
+                "id": "prey",
+                "amount": 6.627018864939892,
+                "share": 0.0002802017418758731
+              }
+            ],
+            "strategies": [
+              {
+                "id": "photons",
+                "population": 463,
+                "labels": 4
+              },
+              {
+                "id": "mixed",
+                "population": 56,
+                "labels": 2
+              },
+              {
+                "id": "detritus",
+                "population": 48,
+                "labels": 1
+              },
+              {
+                "id": "redox",
+                "population": 1,
+                "labels": 1
+              }
+            ]
+          },
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 1046,
+              "livingCarriers": 7,
+              "parents": 583,
+              "transmittedBirths": 901,
+              "mutationGains": 151,
+              "firstAppearanceTick": 170,
+              "encodedBirthCarriers": 1046,
+              "encodedTransmittedBirths": 901,
+              "expressedMutationGains": 145,
+              "dependencyInactivations": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 14,
+          "shapeBoundsCheck": [
+            {
+              "index": 0,
+              "name": "轴向延伸",
+              "mean": 0.6228284046238391,
+              "minimum": 0.3269085182510415,
+              "maximum": 0.9617094219239849,
+              "deviation": 0.09722728044032679
+            },
+            {
+              "index": 1,
+              "name": "躯体厚度",
+              "mean": 0.7597774148682019,
+              "minimum": 0.5346885081809543,
+              "maximum": 0.9784135728963534,
+              "deviation": 0.08651643372083848
+            }
+          ],
+          "balance": {
+            "organic": 8417.8161285798,
+            "redox": 76.13750200538676,
+            "energy": 8493.953630585187,
+            "nutrient": 1328.163132501118,
+            "energyError": -0.000012090142263332382,
+            "nutrientError": 2.5864210329018533e-8
+          }
+        }
+      ]
+    },
+    {
+      "modelVersion": 6,
+      "seed": "STUDY-004",
+      "termination": "horizon",
+      "requestedHorizons": [
+        6000,
+        12000
+      ],
+      "audit": {
+        "sampleCount": 101,
+        "sampledPeakPopulation": 1857,
+        "maxSampledAbsoluteEnergyError": 0.000028183895665279124,
+        "maxSampledAbsoluteNutrientError": 5.870242603123188e-8,
+        "nonFiniteBalanceValues": 0
+      },
+      "sampledPopulationMinimumAfterT1200": {
+        "tick": 1200,
+        "population": 210
+      },
+      "sampledPhysicalColonyPeak": {
+        "tick": 3240,
+        "population": 898,
+        "colonies": {
+          "livingWithColonyTrait": 49,
+          "physicalGroups": 32,
+          "cells": 976
+        },
+        "labels": 2,
+        "effectiveLabels": 1.08365611806303
+      },
+      "checkpoints": [
+        {
+          "tick": 6000,
+          "population": 1400,
+          "labels": {
+            "richness": 4,
+            "effective": 1.1720400532626114,
+            "counts": {
+              "1": 4,
+              "2": 1359,
+              "6": 24,
+              "7": 13
+            }
+          },
+          "origins": {
+            "richness": 2,
+            "effective": 1.0197831525971972,
+            "counts": {
+              "1": 4,
+              "2": 1396
+            }
+          },
+          "historicalLabels": 7,
+          "births": 9511,
+          "deaths": 8215,
+          "crossovers": 7349,
+          "maxLivingGeneration": 38,
+          "meanLivingGeneration": 31.167142857142856,
+          "deathCauses": {
+            "饥饿": 380,
+            "衰老": 7213,
+            "捕食": 622,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 2,
+            "effective": 1.0937126687378802,
+            "counts": {
+              "cell": 1375,
+              "colony": 25
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 25,
+            "physicalGroups": 13,
+            "cells": 1425
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 126072.57711634386,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 95869.8130785398,
+                "share": 0.760433515926846
+              },
+              {
+                "id": "detritus",
+                "amount": 22513.762634380582,
+                "share": 0.1785777934372211
+              },
+              {
+                "id": "plankton",
+                "amount": 4923.58654792886,
+                "share": 0.0390535885007349
+              },
+              {
+                "id": "redox",
+                "amount": 1905.9491755641818,
+                "share": 0.0151178727298111
+              },
+              {
+                "id": "prey",
+                "amount": 859.4656799304519,
+                "share": 0.006817229405386939
+              }
+            ]
+          },
+          "currentIndividualFeeding": {
+            "scope": "recent-decayed",
+            "decaySteps": 600,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 35616.287678376066,
+                "share": 0.7697346310180119
+              },
+              {
+                "id": "detritus",
+                "amount": 8153.226384589386,
+                "share": 0.17620648056923988
+              },
+              {
+                "id": "plankton",
+                "amount": 1631.7360728072283,
+                "share": 0.03526487025439254
+              },
+              {
+                "id": "redox",
+                "amount": 606.1740984330486,
+                "share": 0.013100556694832748
+              },
+              {
+                "id": "prey",
+                "amount": 263.4413903170694,
+                "share": 0.005693461463522952
+              }
+            ],
+            "strategies": [
+              {
+                "id": "photons",
+                "population": 1342,
+                "labels": 4
+              },
+              {
+                "id": "detritus",
+                "population": 35,
+                "labels": 2
+              },
+              {
+                "id": "mixed",
+                "population": 21,
+                "labels": 1
+              },
+              {
+                "id": "unobserved",
+                "population": 2,
+                "labels": 1
+              }
+            ]
+          },
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 328,
+              "livingCarriers": 25,
+              "parents": 124,
+              "transmittedBirths": 178,
+              "mutationGains": 164,
+              "firstAppearanceTick": 593,
+              "encodedBirthCarriers": 328,
+              "encodedTransmittedBirths": 178,
+              "expressedMutationGains": 150,
+              "dependencyInactivations": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 16,
+          "shapeBoundsCheck": [
+            {
+              "index": 0,
+              "name": "轴向延伸",
+              "mean": 0.6357243654313637,
+              "minimum": 0.4003673438773018,
+              "maximum": 1,
+              "deviation": 0.08005940147583704
+            },
+            {
+              "index": 1,
+              "name": "躯体厚度",
+              "mean": 0.6094672574835354,
+              "minimum": 0.3378616303045172,
+              "maximum": 0.9487004509670587,
+              "deviation": 0.08580712183212595
+            }
+          ],
+          "balance": {
+            "organic": 25941.966466292815,
+            "redox": 13.568546277014786,
+            "energy": 25955.53501256983,
+            "nutrient": 1365.2243026243295,
+            "energyError": -0.0000030913759019313147,
+            "nutrientError": -1.901344148791395e-8
+          }
+        },
+        {
+          "tick": 12000,
+          "population": 1780,
+          "labels": {
+            "richness": 8,
+            "effective": 1.624941849839294,
+            "counts": {
+              "2": 1595,
+              "6": 7,
+              "7": 9,
+              "12": 31,
+              "13": 4,
+              "14": 85,
+              "15": 43,
+              "16": 6
+            }
+          },
+          "origins": {
+            "richness": 1,
+            "effective": 1,
+            "counts": {
+              "2": 1780
+            }
+          },
+          "historicalLabels": 16,
+          "births": 27868,
+          "deaths": 26192,
+          "crossovers": 22655,
+          "maxLivingGeneration": 68,
+          "meanLivingGeneration": 61.95561797752809,
+          "deathCauses": {
+            "饥饿": 1368,
+            "衰老": 23309,
+            "捕食": 1515,
+            "灾变": 0
+          },
+          "capacity": {
+            "limit": 2200,
+            "reached": false
+          },
+          "topologies": {
+            "richness": 2,
+            "effective": 1.1063701409694162,
+            "counts": {
+              "cell": 1743,
+              "colony": 37
+            }
+          },
+          "colonies": {
+            "livingWithColonyTrait": 37,
+            "physicalGroups": 13,
+            "cells": 1800
+          },
+          "sharedFeedingMetric": {
+            "scope": "recent-decayed-including-dead",
+            "decaySteps": 600,
+            "total": 171781.311181023,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 128861.45232519084,
+                "share": 0.7501482637386366
+              },
+              {
+                "id": "detritus",
+                "amount": 34108.75125037961,
+                "share": 0.19855915067754862
+              },
+              {
+                "id": "plankton",
+                "amount": 5021.603713330915,
+                "share": 0.029232538038082345
+              },
+              {
+                "id": "prey",
+                "amount": 2091.678885601162,
+                "share": 0.012176405403012397
+              },
+              {
+                "id": "redox",
+                "amount": 1697.825006520473,
+                "share": 0.009883642142720092
+              }
+            ]
+          },
+          "currentIndividualFeeding": {
+            "scope": "recent-decayed",
+            "decaySteps": 600,
+            "sources": [
+              {
+                "id": "photons",
+                "amount": 45263.09546163736,
+                "share": 0.7511611973742638
+              },
+              {
+                "id": "detritus",
+                "amount": 11651.245751680199,
+                "share": 0.1933576044782799
+              },
+              {
+                "id": "plankton",
+                "amount": 1692.998074016953,
+                "share": 0.028096055902953786
+              },
+              {
+                "id": "prey",
+                "amount": 1109.3872433439394,
+                "share": 0.018410774640197847
+              },
+              {
+                "id": "redox",
+                "amount": 540.7729512671724,
+                "share": 0.008974367604304572
+              }
+            ],
+            "strategies": [
+              {
+                "id": "photons",
+                "population": 1658,
+                "labels": 8
+              },
+              {
+                "id": "detritus",
+                "population": 60,
+                "labels": 3
+              },
+              {
+                "id": "mixed",
+                "population": 52,
+                "labels": 4
+              },
+              {
+                "id": "prey",
+                "population": 6,
+                "labels": 1
+              },
+              {
+                "id": "unobserved",
+                "population": 4,
+                "labels": 1
+              }
+            ]
+          },
+          "selectedStructures": [
+            {
+              "id": "colony",
+              "birthCarriers": 716,
+              "livingCarriers": 37,
+              "parents": 162,
+              "transmittedBirths": 214,
+              "mutationGains": 542,
+              "firstAppearanceTick": 593,
+              "encodedBirthCarriers": 716,
+              "encodedTransmittedBirths": 214,
+              "expressedMutationGains": 502,
+              "dependencyInactivations": 0
+            },
+            {
+              "id": "tissue",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "bilateral",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            },
+            {
+              "id": "radial",
+              "birthCarriers": 0,
+              "livingCarriers": 0,
+              "parents": 0,
+              "transmittedBirths": 0,
+              "mutationGains": 0
+            }
+          ],
+          "everExpressedStructureCount": 16,
+          "shapeBoundsCheck": [
+            {
+              "index": 0,
+              "name": "轴向延伸",
+              "mean": 0.7357801054257429,
+              "minimum": 0.40055145724404717,
+              "maximum": 1,
+              "deviation": 0.12135864989233366
+            },
+            {
+              "index": 1,
+              "name": "躯体厚度",
+              "mean": 0.8352194763420977,
+              "minimum": 0.43251015010382166,
+              "maximum": 1,
+              "deviation": 0.12382782583637948
+            }
+          ],
+          "balance": {
+            "organic": 32925.245664164926,
+            "redox": 19.831841237757043,
+            "energy": 32945.07750540268,
+            "nutrient": 1706.829111566267,
+            "energyError": -0.000027433600280346582,
+            "nutrientError": 9.485120244789869e-9
+          }
+        }
+      ]
+    }
+  ],
+  "invasion": {
+    "runs": [
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "resident": "photo",
+        "invader": "chemo",
+        "termination": "horizon",
+        "protocolStatus": "finite-rare-introduction",
+        "residentAtIntroductionOrTermination": 254,
+        "invaderIntroduced": true,
+        "finalTick": 2400,
+        "finalPopulation": 284,
+        "evidence": {
+          "rareAtIntroduction": true,
+          "initialInvaderShare": 0.030534351145038167,
+          "residentBefore": 254,
+          "initialInvaders": 8,
+          "finalResident": 277,
+          "finalInvader": 7,
+          "invaderExtinct": false,
+          "residentExtinct": false,
+          "invaderLogGrowthPerStep": -0.00011127616052043552,
+          "residentLogGrowthPerStep": 0.0000722360326406683,
+          "logOddsChangePerStep": -0.00018351219316110383,
+          "increasedFromRare": false,
+          "note": "Growth is per simulation step. Extinction rates are null rather than pseudocount-adjusted logarithms. Increased-from-rare is a finite-run observation, not proof of stable coexistence."
+        },
+        "residentEstablishmentTail": [
+          {
+            "tick": 960,
+            "population": 238
+          },
+          {
+            "tick": 1080,
+            "population": 256
+          },
+          {
+            "tick": 1200,
+            "population": 254
+          }
+        ],
+        "audit": {
+          "sampleCount": 22,
+          "sampledPeakPopulation": 287,
+          "maxSampledAbsoluteEnergyError": 0.0000014783881852054037,
+          "maxSampledAbsoluteNutrientError": 1.930743565026205e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "resident": "chemo",
+        "invader": "photo",
+        "termination": "horizon",
+        "protocolStatus": "introduction-not-rare",
+        "residentAtIntroductionOrTermination": 7,
+        "invaderIntroduced": true,
+        "finalTick": 2400,
+        "finalPopulation": 71,
+        "evidence": {
+          "rareAtIntroduction": false,
+          "initialInvaderShare": 0.5333333333333333,
+          "residentBefore": 7,
+          "initialInvaders": 8,
+          "finalResident": 7,
+          "finalInvader": 64,
+          "invaderExtinct": false,
+          "residentExtinct": false,
+          "invaderLogGrowthPerStep": 0.001732867951399863,
+          "residentLogGrowthPerStep": 0,
+          "logOddsChangePerStep": 0.001732867951399863,
+          "increasedFromRare": false,
+          "note": "Growth is per simulation step. Extinction rates are null rather than pseudocount-adjusted logarithms. Increased-from-rare is a finite-run observation, not proof of stable coexistence."
+        },
+        "residentEstablishmentTail": [
+          {
+            "tick": 960,
+            "population": 6
+          },
+          {
+            "tick": 1080,
+            "population": 6
+          },
+          {
+            "tick": 1200,
+            "population": 7
+          }
+        ],
+        "audit": {
+          "sampleCount": 22,
+          "sampledPeakPopulation": 71,
+          "maxSampledAbsoluteEnergyError": 7.98636392573826e-8,
+          "maxSampledAbsoluteNutrientError": 1.7472530089435168e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "resident": "photo",
+        "invader": "chemo",
+        "termination": "horizon",
+        "protocolStatus": "finite-rare-introduction",
+        "residentAtIntroductionOrTermination": 611,
+        "invaderIntroduced": true,
+        "finalTick": 2400,
+        "finalPopulation": 639,
+        "evidence": {
+          "rareAtIntroduction": true,
+          "initialInvaderShare": 0.012924071082390954,
+          "residentBefore": 611,
+          "initialInvaders": 8,
+          "finalResident": 638,
+          "finalInvader": 1,
+          "invaderExtinct": false,
+          "residentExtinct": false,
+          "invaderLogGrowthPerStep": -0.001732867951399863,
+          "residentLogGrowthPerStep": 0.000036034436810995395,
+          "logOddsChangePerStep": -0.0017689023882108586,
+          "increasedFromRare": false,
+          "note": "Growth is per simulation step. Extinction rates are null rather than pseudocount-adjusted logarithms. Increased-from-rare is a finite-run observation, not proof of stable coexistence."
+        },
+        "residentEstablishmentTail": [
+          {
+            "tick": 960,
+            "population": 561
+          },
+          {
+            "tick": 1080,
+            "population": 600
+          },
+          {
+            "tick": 1200,
+            "population": 611
+          }
+        ],
+        "audit": {
+          "sampleCount": 22,
+          "sampledPeakPopulation": 639,
+          "maxSampledAbsoluteEnergyError": 0.000004087552952114493,
+          "maxSampledAbsoluteNutrientError": 1.85229964699829e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "resident": "chemo",
+        "invader": "photo",
+        "termination": "horizon",
+        "protocolStatus": "introduction-not-rare",
+        "residentAtIntroductionOrTermination": 4,
+        "invaderIntroduced": true,
+        "finalTick": 2400,
+        "finalPopulation": 160,
+        "evidence": {
+          "rareAtIntroduction": false,
+          "initialInvaderShare": 0.6666666666666666,
+          "residentBefore": 4,
+          "initialInvaders": 8,
+          "finalResident": 2,
+          "finalInvader": 158,
+          "invaderExtinct": false,
+          "residentExtinct": false,
+          "invaderLogGrowthPerStep": 0.0024859612427892757,
+          "residentLogGrowthPerStep": -0.0005776226504666211,
+          "logOddsChangePerStep": 0.0030635838932558967,
+          "increasedFromRare": false,
+          "note": "Growth is per simulation step. Extinction rates are null rather than pseudocount-adjusted logarithms. Increased-from-rare is a finite-run observation, not proof of stable coexistence."
+        },
+        "residentEstablishmentTail": [
+          {
+            "tick": 960,
+            "population": 2
+          },
+          {
+            "tick": 1080,
+            "population": 3
+          },
+          {
+            "tick": 1200,
+            "population": 4
+          }
+        ],
+        "audit": {
+          "sampleCount": 22,
+          "sampledPeakPopulation": 160,
+          "maxSampledAbsoluteEnergyError": 2.591059455880895e-7,
+          "maxSampledAbsoluteNutrientError": 1.7973889043787494e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "dim",
+        "resident": "photo",
+        "invader": "chemo",
+        "termination": "resident-extinction",
+        "protocolStatus": "resident-did-not-survive-establishment",
+        "residentAtIntroductionOrTermination": 0,
+        "invaderIntroduced": false,
+        "finalTick": 748,
+        "finalPopulation": 0,
+        "evidence": null,
+        "residentEstablishmentTail": [
+          {
+            "tick": 600,
+            "population": 10
+          },
+          {
+            "tick": 720,
+            "population": 2
+          },
+          {
+            "tick": 748,
+            "population": 0
+          }
+        ],
+        "audit": {
+          "sampleCount": 8,
+          "sampledPeakPopulation": 52,
+          "maxSampledAbsoluteEnergyError": 6.605660018976778e-9,
+          "maxSampledAbsoluteNutrientError": 1.1897327567567118e-10,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "dim",
+        "resident": "chemo",
+        "invader": "photo",
+        "termination": "resident-extinction",
+        "protocolStatus": "resident-did-not-survive-establishment",
+        "residentAtIntroductionOrTermination": 0,
+        "invaderIntroduced": false,
+        "finalTick": 669,
+        "finalPopulation": 0,
+        "evidence": null,
+        "residentEstablishmentTail": [
+          {
+            "tick": 480,
+            "population": 23
+          },
+          {
+            "tick": 600,
+            "population": 6
+          },
+          {
+            "tick": 669,
+            "population": 0
+          }
+        ],
+        "audit": {
+          "sampleCount": 7,
+          "sampledPeakPopulation": 60,
+          "maxSampledAbsoluteEnergyError": 5.888182386115659e-9,
+          "maxSampledAbsoluteNutrientError": 1.1550582712516189e-10,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "resident": "photo",
+        "invader": "chemo",
+        "termination": "horizon",
+        "protocolStatus": "finite-rare-introduction",
+        "residentAtIntroductionOrTermination": 271,
+        "invaderIntroduced": true,
+        "finalTick": 2400,
+        "finalPopulation": 281,
+        "evidence": {
+          "rareAtIntroduction": true,
+          "initialInvaderShare": 0.02867383512544803,
+          "residentBefore": 271,
+          "initialInvaders": 8,
+          "finalResident": 281,
+          "finalInvader": 0,
+          "invaderExtinct": true,
+          "residentExtinct": false,
+          "invaderLogGrowthPerStep": null,
+          "residentLogGrowthPerStep": 0.000030196540378370675,
+          "logOddsChangePerStep": null,
+          "increasedFromRare": false,
+          "note": "Growth is per simulation step. Extinction rates are null rather than pseudocount-adjusted logarithms. Increased-from-rare is a finite-run observation, not proof of stable coexistence."
+        },
+        "residentEstablishmentTail": [
+          {
+            "tick": 960,
+            "population": 253
+          },
+          {
+            "tick": 1080,
+            "population": 261
+          },
+          {
+            "tick": 1200,
+            "population": 271
+          }
+        ],
+        "audit": {
+          "sampleCount": 22,
+          "sampledPeakPopulation": 290,
+          "maxSampledAbsoluteEnergyError": 0.000001922197043313645,
+          "maxSampledAbsoluteNutrientError": 8.49615844344953e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "resident": "chemo",
+        "invader": "photo",
+        "termination": "horizon",
+        "protocolStatus": "introduction-not-rare",
+        "residentAtIntroductionOrTermination": 9,
+        "invaderIntroduced": true,
+        "finalTick": 2400,
+        "finalPopulation": 103,
+        "evidence": {
+          "rareAtIntroduction": false,
+          "initialInvaderShare": 0.47058823529411764,
+          "residentBefore": 9,
+          "initialInvaders": 8,
+          "finalResident": 9,
+          "finalInvader": 94,
+          "invaderExtinct": false,
+          "residentExtinct": false,
+          "invaderLogGrowthPerStep": 0.0020532110338251403,
+          "residentLogGrowthPerStep": 0,
+          "logOddsChangePerStep": 0.0020532110338251403,
+          "increasedFromRare": false,
+          "note": "Growth is per simulation step. Extinction rates are null rather than pseudocount-adjusted logarithms. Increased-from-rare is a finite-run observation, not proof of stable coexistence."
+        },
+        "residentEstablishmentTail": [
+          {
+            "tick": 960,
+            "population": 7
+          },
+          {
+            "tick": 1080,
+            "population": 9
+          },
+          {
+            "tick": 1200,
+            "population": 9
+          }
+        ],
+        "audit": {
+          "sampleCount": 22,
+          "sampledPeakPopulation": 103,
+          "maxSampledAbsoluteEnergyError": 1.7688216757960618e-7,
+          "maxSampledAbsoluteNutrientError": 8.411802809860092e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "resident": "photo",
+        "invader": "chemo",
+        "termination": "horizon",
+        "protocolStatus": "finite-rare-introduction",
+        "residentAtIntroductionOrTermination": 642,
+        "invaderIntroduced": true,
+        "finalTick": 2400,
+        "finalPopulation": 731,
+        "evidence": {
+          "rareAtIntroduction": true,
+          "initialInvaderShare": 0.012307692307692308,
+          "residentBefore": 642,
+          "initialInvaders": 8,
+          "finalResident": 731,
+          "finalInvader": 0,
+          "invaderExtinct": true,
+          "residentExtinct": false,
+          "invaderLogGrowthPerStep": null,
+          "residentLogGrowthPerStep": 0.00010818763004984774,
+          "logOddsChangePerStep": null,
+          "increasedFromRare": false,
+          "note": "Growth is per simulation step. Extinction rates are null rather than pseudocount-adjusted logarithms. Increased-from-rare is a finite-run observation, not proof of stable coexistence."
+        },
+        "residentEstablishmentTail": [
+          {
+            "tick": 960,
+            "population": 596
+          },
+          {
+            "tick": 1080,
+            "population": 625
+          },
+          {
+            "tick": 1200,
+            "population": 642
+          }
+        ],
+        "audit": {
+          "sampleCount": 22,
+          "sampledPeakPopulation": 745,
+          "maxSampledAbsoluteEnergyError": 0.000003602086962928297,
+          "maxSampledAbsoluteNutrientError": 8.446477295365185e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "resident": "chemo",
+        "invader": "photo",
+        "termination": "horizon",
+        "protocolStatus": "introduction-not-rare",
+        "residentAtIntroductionOrTermination": 8,
+        "invaderIntroduced": true,
+        "finalTick": 2400,
+        "finalPopulation": 284,
+        "evidence": {
+          "rareAtIntroduction": false,
+          "initialInvaderShare": 0.5,
+          "residentBefore": 8,
+          "initialInvaders": 8,
+          "finalResident": 8,
+          "finalInvader": 276,
+          "invaderExtinct": false,
+          "residentExtinct": false,
+          "invaderLogGrowthPerStep": 0.0029507994366977618,
+          "residentLogGrowthPerStep": 0,
+          "logOddsChangePerStep": 0.0029507994366977618,
+          "increasedFromRare": false,
+          "note": "Growth is per simulation step. Extinction rates are null rather than pseudocount-adjusted logarithms. Increased-from-rare is a finite-run observation, not proof of stable coexistence."
+        },
+        "residentEstablishmentTail": [
+          {
+            "tick": 960,
+            "population": 10
+          },
+          {
+            "tick": 1080,
+            "population": 10
+          },
+          {
+            "tick": 1200,
+            "population": 8
+          }
+        ],
+        "audit": {
+          "sampleCount": 22,
+          "sampledPeakPopulation": 285,
+          "maxSampledAbsoluteEnergyError": 4.3786803871626034e-7,
+          "maxSampledAbsoluteNutrientError": 8.801976036920678e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "dim",
+        "resident": "photo",
+        "invader": "chemo",
+        "termination": "resident-extinction",
+        "protocolStatus": "resident-did-not-survive-establishment",
+        "residentAtIntroductionOrTermination": 0,
+        "invaderIntroduced": false,
+        "finalTick": 815,
+        "finalPopulation": 0,
+        "evidence": null,
+        "residentEstablishmentTail": [
+          {
+            "tick": 600,
+            "population": 5
+          },
+          {
+            "tick": 720,
+            "population": 1
+          },
+          {
+            "tick": 815,
+            "population": 0
+          }
+        ],
+        "audit": {
+          "sampleCount": 8,
+          "sampledPeakPopulation": 52,
+          "maxSampledAbsoluteEnergyError": 3.680906957015395e-8,
+          "maxSampledAbsoluteNutrientError": 1.214516487380024e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "dim",
+        "resident": "chemo",
+        "invader": "photo",
+        "termination": "horizon",
+        "protocolStatus": "introduction-not-rare",
+        "residentAtIntroductionOrTermination": 4,
+        "invaderIntroduced": true,
+        "finalTick": 2400,
+        "finalPopulation": 6,
+        "evidence": {
+          "rareAtIntroduction": false,
+          "initialInvaderShare": 0.6666666666666666,
+          "residentBefore": 4,
+          "initialInvaders": 8,
+          "finalResident": 6,
+          "finalInvader": 0,
+          "invaderExtinct": true,
+          "residentExtinct": false,
+          "invaderLogGrowthPerStep": null,
+          "residentLogGrowthPerStep": 0.000337887590090137,
+          "logOddsChangePerStep": null,
+          "increasedFromRare": false,
+          "note": "Growth is per simulation step. Extinction rates are null rather than pseudocount-adjusted logarithms. Increased-from-rare is a finite-run observation, not proof of stable coexistence."
+        },
+        "residentEstablishmentTail": [
+          {
+            "tick": 960,
+            "population": 5
+          },
+          {
+            "tick": 1080,
+            "population": 5
+          },
+          {
+            "tick": 1200,
+            "population": 4
+          }
+        ],
+        "audit": {
+          "sampleCount": 22,
+          "sampledPeakPopulation": 62,
+          "maxSampledAbsoluteEnergyError": 1.1006432032445446e-7,
+          "maxSampledAbsoluteNutrientError": 8.429196896031499e-9,
+          "nonFiniteBalanceValues": 0
+        }
+      }
+    ],
+    "summary": {
+      "plannedDirections": 12,
+      "finiteRareIntroductions": 4,
+      "increasesFromRare": 0,
+      "nonRareIntroductions": 5,
+      "residentFailures": 3,
+      "pairsWithBothDirectionsRare": 0,
+      "pairsShowingBothFiniteIncreases": 0
+    }
+  },
+  "colonyFeasibility": {
+    "startedAt": "2026-09-30T07:00:36.659Z",
+    "seeds": [
+      "ORIGIN-042",
+      "DELTA-103"
+    ],
+    "conditions": {
+      "mixed": {
+        "light": 1,
+        "resources": 1
+      },
+      "bright": {
+        "light": 1.6,
+        "resources": 1
+      }
+    },
+    "steps": 1500,
+    "founders": 26,
+    "genes": [
+      0.9,
+      0.15,
+      0,
+      0.25,
+      0.15,
+      0.4,
+      0.46,
+      0.5,
+      0.5,
+      0.45,
+      0.1,
+      0.6,
+      0.05,
+      0.05
+    ],
+    "initialReserve": 17,
+    "mutation": 0,
+    "reproductionMode": "asexual",
+    "volatility": 0,
+    "design": "For each seed, light condition and repeat-gene value, separate worlds contain only single cells, colony carriers or colony+tissue carriers. All have pigment. Genomes and all other shape values are identical. Founders begin as one cell and pay their own growth costs. Initial cells are exact clones distributed over aquatic field centres; no random founding gene perturbation is used.",
+    "notes": [
+      "Monocultures use a synthetic light-specialist genotype carrying pigment.",
+      "There are two seed replicates per condition; the five single-cell controls differ only in shape[3] and give identical outcomes within a seed/environment, so they must not be treated as five independent replicates.",
+      "Mutation is disabled and all structures are fixed at founding, so structural mutation-eligibility thresholds do not operate in this assay."
+    ],
+    "summary": {
+      "runs": 60,
+      "colonyOrTissueRuns": 40,
+      "runsWithMaturation": 60,
+      "runsWithBirths": 60,
+      "runsWithLivingDescendants": 60,
+      "capacityStops": 0,
+      "totalBirths": 23400,
+      "maxSampledAbsoluteEnergyError": 7.370808816631325e-7,
+      "maxSampledAbsoluteNutrientError": 1.9886101654265076e-9
+    },
+    "runs": [
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 2,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 82,
+        "births": 254,
+        "aliveDescendants": 82,
+        "firstMatureTick": 0,
+        "firstBirthTick": 33,
+        "cellDistribution": {
+          "1": 82
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 2,
+        "actualMatureCells": 2,
+        "termination": "horizon",
+        "population": 42,
+        "births": 172,
+        "aliveDescendants": 42,
+        "firstMatureTick": 12,
+        "firstBirthTick": 40,
+        "cellDistribution": {
+          "1": 22,
+          "2": 20
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 2,
+        "actualMatureCells": 2,
+        "termination": "horizon",
+        "population": 35,
+        "births": 147,
+        "aliveDescendants": 35,
+        "firstMatureTick": 12,
+        "firstBirthTick": 43,
+        "cellDistribution": {
+          "1": 15,
+          "2": 20
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 3,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 82,
+        "births": 254,
+        "aliveDescendants": 82,
+        "firstMatureTick": 0,
+        "firstBirthTick": 33,
+        "cellDistribution": {
+          "1": 82
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 3,
+        "actualMatureCells": 3,
+        "termination": "horizon",
+        "population": 32,
+        "births": 138,
+        "aliveDescendants": 32,
+        "firstMatureTick": 24,
+        "firstBirthTick": 49,
+        "cellDistribution": {
+          "1": 9,
+          "2": 11,
+          "3": 12
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 3,
+        "actualMatureCells": 3,
+        "termination": "horizon",
+        "population": 35,
+        "births": 118,
+        "aliveDescendants": 35,
+        "firstMatureTick": 24,
+        "firstBirthTick": 53,
+        "cellDistribution": {
+          "1": 16,
+          "2": 4,
+          "3": 15
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 4,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 82,
+        "births": 254,
+        "aliveDescendants": 82,
+        "firstMatureTick": 0,
+        "firstBirthTick": 33,
+        "cellDistribution": {
+          "1": 82
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 4,
+        "actualMatureCells": 4,
+        "termination": "horizon",
+        "population": 27,
+        "births": 114,
+        "aliveDescendants": 27,
+        "firstMatureTick": 36,
+        "firstBirthTick": 58,
+        "cellDistribution": {
+          "1": 7,
+          "2": 5,
+          "3": 7,
+          "4": 8
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 4,
+        "actualMatureCells": 4,
+        "termination": "horizon",
+        "population": 23,
+        "births": 98,
+        "aliveDescendants": 23,
+        "firstMatureTick": 36,
+        "firstBirthTick": 64,
+        "cellDistribution": {
+          "1": 9,
+          "2": 2,
+          "3": 4,
+          "4": 8
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 5,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 82,
+        "births": 254,
+        "aliveDescendants": 82,
+        "firstMatureTick": 0,
+        "firstBirthTick": 33,
+        "cellDistribution": {
+          "1": 82
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 5,
+        "actualMatureCells": 5,
+        "termination": "horizon",
+        "population": 26,
+        "births": 109,
+        "aliveDescendants": 26,
+        "firstMatureTick": 48,
+        "firstBirthTick": 68,
+        "cellDistribution": {
+          "1": 10,
+          "2": 8,
+          "3": 2,
+          "4": 2,
+          "5": 4
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 5,
+        "actualMatureCells": 5,
+        "termination": "horizon",
+        "population": 34,
+        "births": 109,
+        "aliveDescendants": 34,
+        "firstMatureTick": 48,
+        "firstBirthTick": 76,
+        "cellDistribution": {
+          "1": 13,
+          "2": 5,
+          "3": 2,
+          "4": 7,
+          "5": 7
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 6,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 82,
+        "births": 254,
+        "aliveDescendants": 82,
+        "firstMatureTick": 0,
+        "firstBirthTick": 33,
+        "cellDistribution": {
+          "1": 82
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 6,
+        "actualMatureCells": 6,
+        "termination": "horizon",
+        "population": 25,
+        "births": 99,
+        "aliveDescendants": 25,
+        "firstMatureTick": 60,
+        "firstBirthTick": 78,
+        "cellDistribution": {
+          "1": 11,
+          "2": 2,
+          "3": 2,
+          "4": 2,
+          "5": 2,
+          "6": 6
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 6,
+        "actualMatureCells": 6,
+        "termination": "horizon",
+        "population": 23,
+        "births": 75,
+        "aliveDescendants": 23,
+        "firstMatureTick": 60,
+        "firstBirthTick": 92,
+        "cellDistribution": {
+          "1": 8,
+          "2": 5,
+          "5": 5,
+          "6": 5
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 2,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 197,
+        "births": 624,
+        "aliveDescendants": 197,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 197
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 2,
+        "actualMatureCells": 2,
+        "termination": "horizon",
+        "population": 159,
+        "births": 601,
+        "aliveDescendants": 159,
+        "firstMatureTick": 12,
+        "firstBirthTick": 21,
+        "cellDistribution": {
+          "1": 86,
+          "2": 73
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 2,
+        "actualMatureCells": 2,
+        "termination": "horizon",
+        "population": 180,
+        "births": 543,
+        "aliveDescendants": 180,
+        "firstMatureTick": 12,
+        "firstBirthTick": 22,
+        "cellDistribution": {
+          "1": 94,
+          "2": 86
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 3,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 197,
+        "births": 624,
+        "aliveDescendants": 197,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 197
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 3,
+        "actualMatureCells": 3,
+        "termination": "horizon",
+        "population": 196,
+        "births": 639,
+        "aliveDescendants": 196,
+        "firstMatureTick": 24,
+        "firstBirthTick": 26,
+        "cellDistribution": {
+          "1": 93,
+          "2": 34,
+          "3": 69
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 3,
+        "actualMatureCells": 3,
+        "termination": "horizon",
+        "population": 147,
+        "births": 497,
+        "aliveDescendants": 147,
+        "firstMatureTick": 24,
+        "firstBirthTick": 27,
+        "cellDistribution": {
+          "1": 74,
+          "2": 25,
+          "3": 48
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 4,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 197,
+        "births": 624,
+        "aliveDescendants": 197,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 197
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 4,
+        "actualMatureCells": 4,
+        "termination": "horizon",
+        "population": 162,
+        "births": 549,
+        "aliveDescendants": 162,
+        "firstMatureTick": 36,
+        "firstBirthTick": 36,
+        "cellDistribution": {
+          "1": 78,
+          "2": 22,
+          "3": 19,
+          "4": 43
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 4,
+        "actualMatureCells": 4,
+        "termination": "horizon",
+        "population": 175,
+        "births": 542,
+        "aliveDescendants": 175,
+        "firstMatureTick": 36,
+        "firstBirthTick": 36,
+        "cellDistribution": {
+          "1": 78,
+          "2": 23,
+          "3": 23,
+          "4": 51
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 5,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 197,
+        "births": 624,
+        "aliveDescendants": 197,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 197
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 5,
+        "actualMatureCells": 5,
+        "termination": "horizon",
+        "population": 169,
+        "births": 595,
+        "aliveDescendants": 169,
+        "firstMatureTick": 48,
+        "firstBirthTick": 48,
+        "cellDistribution": {
+          "1": 78,
+          "2": 17,
+          "3": 15,
+          "4": 23,
+          "5": 36
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 5,
+        "actualMatureCells": 5,
+        "termination": "horizon",
+        "population": 159,
+        "births": 565,
+        "aliveDescendants": 159,
+        "firstMatureTick": 48,
+        "firstBirthTick": 48,
+        "cellDistribution": {
+          "1": 59,
+          "2": 22,
+          "3": 7,
+          "4": 19,
+          "5": 52
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 6,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 197,
+        "births": 624,
+        "aliveDescendants": 197,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 197
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 6,
+        "actualMatureCells": 6,
+        "termination": "horizon",
+        "population": 159,
+        "births": 552,
+        "aliveDescendants": 159,
+        "firstMatureTick": 60,
+        "firstBirthTick": 60,
+        "cellDistribution": {
+          "1": 68,
+          "2": 24,
+          "3": 15,
+          "4": 4,
+          "5": 15,
+          "6": 33
+        }
+      },
+      {
+        "seed": "ORIGIN-042",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 6,
+        "actualMatureCells": 6,
+        "termination": "horizon",
+        "population": 150,
+        "births": 495,
+        "aliveDescendants": 150,
+        "firstMatureTick": 60,
+        "firstBirthTick": 60,
+        "cellDistribution": {
+          "1": 72,
+          "2": 18,
+          "3": 15,
+          "4": 4,
+          "5": 9,
+          "6": 32
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 2,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 74,
+        "births": 245,
+        "aliveDescendants": 74,
+        "firstMatureTick": 0,
+        "firstBirthTick": 32,
+        "cellDistribution": {
+          "1": 74
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 2,
+        "actualMatureCells": 2,
+        "termination": "horizon",
+        "population": 54,
+        "births": 184,
+        "aliveDescendants": 54,
+        "firstMatureTick": 12,
+        "firstBirthTick": 39,
+        "cellDistribution": {
+          "1": 24,
+          "2": 30
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 2,
+        "actualMatureCells": 2,
+        "termination": "horizon",
+        "population": 42,
+        "births": 155,
+        "aliveDescendants": 42,
+        "firstMatureTick": 12,
+        "firstBirthTick": 42,
+        "cellDistribution": {
+          "1": 25,
+          "2": 17
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 3,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 74,
+        "births": 245,
+        "aliveDescendants": 74,
+        "firstMatureTick": 0,
+        "firstBirthTick": 32,
+        "cellDistribution": {
+          "1": 74
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 3,
+        "actualMatureCells": 3,
+        "termination": "horizon",
+        "population": 59,
+        "births": 182,
+        "aliveDescendants": 59,
+        "firstMatureTick": 24,
+        "firstBirthTick": 47,
+        "cellDistribution": {
+          "1": 20,
+          "2": 15,
+          "3": 24
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 3,
+        "actualMatureCells": 3,
+        "termination": "horizon",
+        "population": 30,
+        "births": 124,
+        "aliveDescendants": 30,
+        "firstMatureTick": 24,
+        "firstBirthTick": 51,
+        "cellDistribution": {
+          "1": 10,
+          "2": 4,
+          "3": 16
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 4,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 74,
+        "births": 245,
+        "aliveDescendants": 74,
+        "firstMatureTick": 0,
+        "firstBirthTick": 32,
+        "cellDistribution": {
+          "1": 74
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 4,
+        "actualMatureCells": 4,
+        "termination": "horizon",
+        "population": 36,
+        "births": 136,
+        "aliveDescendants": 36,
+        "firstMatureTick": 36,
+        "firstBirthTick": 56,
+        "cellDistribution": {
+          "1": 12,
+          "2": 1,
+          "3": 7,
+          "4": 16
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 4,
+        "actualMatureCells": 4,
+        "termination": "horizon",
+        "population": 26,
+        "births": 97,
+        "aliveDescendants": 26,
+        "firstMatureTick": 36,
+        "firstBirthTick": 61,
+        "cellDistribution": {
+          "1": 9,
+          "2": 1,
+          "3": 7,
+          "4": 9
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 5,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 74,
+        "births": 245,
+        "aliveDescendants": 74,
+        "firstMatureTick": 0,
+        "firstBirthTick": 32,
+        "cellDistribution": {
+          "1": 74
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 5,
+        "actualMatureCells": 5,
+        "termination": "horizon",
+        "population": 24,
+        "births": 114,
+        "aliveDescendants": 24,
+        "firstMatureTick": 48,
+        "firstBirthTick": 64,
+        "cellDistribution": {
+          "1": 10,
+          "2": 3,
+          "3": 3,
+          "4": 2,
+          "5": 6
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 5,
+        "actualMatureCells": 5,
+        "termination": "horizon",
+        "population": 16,
+        "births": 79,
+        "aliveDescendants": 16,
+        "firstMatureTick": 48,
+        "firstBirthTick": 71,
+        "cellDistribution": {
+          "1": 2,
+          "2": 2,
+          "3": 2,
+          "4": 5,
+          "5": 5
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "single",
+        "targetMatureCells": 6,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 74,
+        "births": 245,
+        "aliveDescendants": 74,
+        "firstMatureTick": 0,
+        "firstBirthTick": 32,
+        "cellDistribution": {
+          "1": 74
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "colony",
+        "targetMatureCells": 6,
+        "actualMatureCells": 6,
+        "termination": "horizon",
+        "population": 16,
+        "births": 84,
+        "aliveDescendants": 16,
+        "firstMatureTick": 60,
+        "firstBirthTick": 73,
+        "cellDistribution": {
+          "1": 5,
+          "2": 1,
+          "3": 2,
+          "5": 3,
+          "6": 5
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "mixed",
+        "variant": "tissue",
+        "targetMatureCells": 6,
+        "actualMatureCells": 6,
+        "termination": "horizon",
+        "population": 12,
+        "births": 56,
+        "aliveDescendants": 12,
+        "firstMatureTick": 60,
+        "firstBirthTick": 83,
+        "cellDistribution": {
+          "1": 1,
+          "3": 4,
+          "4": 1,
+          "5": 3,
+          "6": 3
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 2,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 217,
+        "births": 748,
+        "aliveDescendants": 217,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 217
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 2,
+        "actualMatureCells": 2,
+        "termination": "horizon",
+        "population": 190,
+        "births": 661,
+        "aliveDescendants": 190,
+        "firstMatureTick": 12,
+        "firstBirthTick": 21,
+        "cellDistribution": {
+          "1": 92,
+          "2": 98
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 2,
+        "actualMatureCells": 2,
+        "termination": "horizon",
+        "population": 193,
+        "births": 619,
+        "aliveDescendants": 193,
+        "firstMatureTick": 12,
+        "firstBirthTick": 21,
+        "cellDistribution": {
+          "1": 100,
+          "2": 93
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 3,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 217,
+        "births": 748,
+        "aliveDescendants": 217,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 217
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 3,
+        "actualMatureCells": 3,
+        "termination": "horizon",
+        "population": 205,
+        "births": 623,
+        "aliveDescendants": 205,
+        "firstMatureTick": 24,
+        "firstBirthTick": 26,
+        "cellDistribution": {
+          "1": 85,
+          "2": 48,
+          "3": 72
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 3,
+        "actualMatureCells": 3,
+        "termination": "horizon",
+        "population": 211,
+        "births": 613,
+        "aliveDescendants": 211,
+        "firstMatureTick": 24,
+        "firstBirthTick": 26,
+        "cellDistribution": {
+          "1": 101,
+          "2": 28,
+          "3": 82
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 4,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 217,
+        "births": 748,
+        "aliveDescendants": 217,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 217
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 4,
+        "actualMatureCells": 4,
+        "termination": "horizon",
+        "population": 202,
+        "births": 654,
+        "aliveDescendants": 202,
+        "firstMatureTick": 36,
+        "firstBirthTick": 36,
+        "cellDistribution": {
+          "1": 89,
+          "2": 21,
+          "3": 35,
+          "4": 57
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 4,
+        "actualMatureCells": 4,
+        "termination": "horizon",
+        "population": 176,
+        "births": 530,
+        "aliveDescendants": 176,
+        "firstMatureTick": 36,
+        "firstBirthTick": 36,
+        "cellDistribution": {
+          "1": 67,
+          "2": 21,
+          "3": 34,
+          "4": 54
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 5,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 217,
+        "births": 748,
+        "aliveDescendants": 217,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 217
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 5,
+        "actualMatureCells": 5,
+        "termination": "horizon",
+        "population": 207,
+        "births": 624,
+        "aliveDescendants": 207,
+        "firstMatureTick": 48,
+        "firstBirthTick": 48,
+        "cellDistribution": {
+          "1": 82,
+          "2": 24,
+          "3": 20,
+          "4": 27,
+          "5": 54
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 5,
+        "actualMatureCells": 5,
+        "termination": "horizon",
+        "population": 181,
+        "births": 564,
+        "aliveDescendants": 181,
+        "firstMatureTick": 48,
+        "firstBirthTick": 48,
+        "cellDistribution": {
+          "1": 77,
+          "2": 22,
+          "3": 17,
+          "4": 20,
+          "5": 45
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "single",
+        "targetMatureCells": 6,
+        "actualMatureCells": 1,
+        "termination": "horizon",
+        "population": 217,
+        "births": 748,
+        "aliveDescendants": 217,
+        "firstMatureTick": 0,
+        "firstBirthTick": 18,
+        "cellDistribution": {
+          "1": 217
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "colony",
+        "targetMatureCells": 6,
+        "actualMatureCells": 6,
+        "termination": "horizon",
+        "population": 193,
+        "births": 644,
+        "aliveDescendants": 193,
+        "firstMatureTick": 60,
+        "firstBirthTick": 60,
+        "cellDistribution": {
+          "1": 78,
+          "2": 24,
+          "3": 15,
+          "4": 10,
+          "5": 14,
+          "6": 52
+        }
+      },
+      {
+        "seed": "DELTA-103",
+        "condition": "bright",
+        "variant": "tissue",
+        "targetMatureCells": 6,
+        "actualMatureCells": 6,
+        "termination": "horizon",
+        "population": 170,
+        "births": 545,
+        "aliveDescendants": 170,
+        "firstMatureTick": 60,
+        "firstBirthTick": 60,
+        "cellDistribution": {
+          "1": 77,
+          "2": 19,
+          "3": 13,
+          "4": 6,
+          "5": 18,
+          "6": 37
+        }
+      }
+    ]
+  }
+}

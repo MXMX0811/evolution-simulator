@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {buildOrganism,MORPHOLOGY,previewSpecimen} from '../dist/morphology.js';
 import {disposeOrganism} from '../dist/anatomy.js';
-import {TRAITS,TRAIT_INDEX,traitClosure} from '../dist/biology.js';
+import {GENES,TRAITS,TRAIT_INDEX,traitClosure} from '../dist/biology.js';
 import {develop,compatibleTraits,combinationSample} from '../dist/development.js';
-const specimen=traits=>({genes:Array(12).fill(.6),shape:Array(8).fill(.5),traits:traitClosure(traits)});
+const specimen=traits=>({genes:GENES.map(()=>.6),cells:1,shape:Array(8).fill(.5),traits:traitClosure(traits)});
 function finite(model){let meshes=0;model.traverse(n=>{assert.ok([...n.position.toArray(),...n.scale.toArray()].every(Number.isFinite));if(n.geometry){meshes++;assert.ok(Array.from(n.geometry.attributes.position.array).every(Number.isFinite));assert.ok(Array.from(n.geometry.attributes.normal.array).every(Number.isFinite));}});assert.ok(meshes>0);}
 test('all 72 structure previews generate finite surface and anatomy geometry',()=>{
  assert.equal(Object.keys(MORPHOLOGY).length,TRAITS.length);
@@ -61,4 +61,27 @@ test('external structures require birth material in the same body description',(
 test('species recolouring cannot redraw inherited body appearance',()=>{
  const a=specimen(['fins','carapace']),one=buildOrganism(a,'#ff0044'),two=buildOrganism(a,'#0033ff');
  const collect=root=>{const values=[];root.traverse(m=>{if(m.isMesh)values.push({color:m.material.color.getHex(),position:Array.from(m.geometry.attributes.position.array),scale:m.scale.toArray()});});return values;};assert.deepEqual(collect(one),collect(two));disposeOrganism(one);disposeOrganism(two);
+});
+test('visible colony cells track paid growth and tissue bodies scale with their material volume',()=>{
+ for(const cells of [1,2,4,6]){
+  const a={...specimen(['colony','budding','filter']),cells},model=buildOrganism(a,'#88dfbc');
+  let envelopes=0;model.traverse(m=>{if(m.userData.core)envelopes++;});
+  assert.equal(envelopes,cells);assert.equal(model.userData.cells.length,cells);
+  assert.equal(model.userData.development.mass,develop(a).mass*cells);
+  assert.ok(model.userData.cells.every(cell=>Math.abs(cell.s-1)<1e-12));
+  finite(model);disposeOrganism(model);
+ }
+ const a=specimen(['fins','camera','gills']),juvenile=buildOrganism(a,'#88dfbc'),adult=buildOrganism({...a,cells:6},'#88dfbc');
+ assert.ok(Math.abs(juvenile.userData.normalization.scale/adult.userData.normalization.scale-Math.cbrt(6))<1e-10);
+ assert.equal(adult.userData.development.mass,juvenile.userData.development.mass*6);
+ disposeOrganism(juvenile);disposeOrganism(adult);
+});
+test('gallery represents actual growth while independent previews explicitly show mature bodies',async()=>{
+ const {morphologyView,specimenDialog}=await import('../dist/morphology.js'),a={...specimen(['colony']),cells:5,id:17,generation:4,cohort:10};
+ const world={agents:[],records:{17:{...a,cells:1}},species:[{id:2,name:'测试群落',color:'#88dfbc',count:10,extinct:null,specimen:a,parent:null}]};
+ const gallery=morphologyView(world,2),dialog=specimenDialog(world,'species:2');
+ assert.match(gallery,/5 个细胞单元/);assert.match(gallery,/总材料/);assert.match(gallery,/data-size="relative"/);
+ assert.match(dialog,/data-model="2"/);assert.doesNotMatch(dialog,/data-individual=/);assert.match(dialog,/实际生长状态 · 5 个细胞单元/);
+ for(const key of ['trait:colony','trait:fins','sample:3','workshop']){const sample=previewSpecimen(key);assert.equal(sample.cells,sample.traits.includes('colony')?2+Math.round(sample.shape[3]*4):1);assert.equal(sample.genes.length,GENES.length);}
+ assert.match(specimenDialog(world,'trait:colony'),/成熟结构示意/);
 });

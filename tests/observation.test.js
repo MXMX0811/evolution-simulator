@@ -4,6 +4,7 @@ import {World} from '../dist/engine.js';
 import {observationView,snapshotView} from '../dist/observation-view.js';
 import {compareWorlds} from '../dist/comparison.js';
 import {lineageView,journalView} from '../dist/views.js';
+import {traitClosure} from '../dist/biology.js';
 
 test('a birth remains inspectable with its parents and neutral inheritance after death and restore',()=>{
  const world=new World({origin:false,seed:'ARCHIVE-TEST'});world.step(220);
@@ -36,4 +37,22 @@ test('comparison display excludes censored durations from equal-window means',()
  const html=snapshotView({snapshot,results:[truncated],change:'cooling',busy:false,completed:1,error:null});
  assert.match(html,/尚无完整配对/);assert.doesNotMatch(html,/<table/);
  assert.match(html,/实际/);assert.doesNotMatch(html,/NaN|undefined/);
+});
+
+test('living colony growth can be inspected without changing birth or parent comparison specimens',()=>{
+ const world=new World({origin:false,founders:1,seed:'LIVE-COLONY'}),comparison=world.agents[0];
+ const colony=world.makeAgent(world.species[0],100,100,comparison.genes,traitClosure(['colony']));
+ world.agents.push(colony);world.tick=240;colony.cells=4;
+ world.records[colony.id].lifeHistory.peakCells=4;world.records[colony.id].lifeHistory.divisions=3;
+ const html=observationView(world,colony.id,comparison.id),life=html.split('群落的生长与释放')[1].split('</section>')[0];
+ assert.match(life,/出生时 · T \+ 0/);assert.match(life,/当前 · T \+ 240/);assert.match(life,/4 个细胞单元/);
+ assert.match(life,new RegExp(`data-individual="${colony.id}" data-fixed-view="true" data-size="relative"`));
+ assert.match(life,new RegExp(`data-live-individual="${colony.id}" data-fixed-view="true" data-size="relative"`));
+ assert.match(html,new RegExp(`individual-model" data-individual="${colony.id}"`));
+ const comparisonPanel=html.split('身体的异同')[1].split('</section>')[0];
+ assert.match(comparisonPanel,new RegExp(`data-individual="${comparison.id}"`));assert.doesNotMatch(comparisonPanel,/data-live-individual/);
+ world.kill(colony,'灾变');world.agents=world.agents.filter(a=>a.alive);
+ const archived=observationView(world,colony.id,comparison.id);
+ assert.doesNotMatch(archived,/data-live-individual/);assert.match(archived,/群落的生长与释放/);
+ assert.equal(world.records[colony.id].cells,1);
 });

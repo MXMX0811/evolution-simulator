@@ -12,13 +12,18 @@ for(let y=0;y<256;y++)for(let x=0;x<256;x++){const row=Math.floor(y/16),xx=((x+(
 const scales=new THREE.DataTexture(scaleData,256,256);scales.wrapS=scales.wrapT=THREE.RepeatWrapping;scales.repeat.set(2,1);scales.needsUpdate=true;
 // Curved surfaces and tapered appendages are generated with Three.js geometry primitives.
 export function buildOrganism(a,color,{anatomy=false}={}){
- const dev=develop(a),root=new THREE.Group(),motions=[],g=a.genes,plan=dev.topology,micro=dev.micro,flora=!has(a,'bilateral')&&!has(a,'radial')&&has(a,'root'),base=new THREE.Color('#98b99e').offsetHSL(dev.hue,.03,0),L=dev.length,B=dev.width;
+ const dev=develop(a,a.cells),root=new THREE.Group(),motions=[],g=a.genes,plan=dev.topology,micro=dev.micro,flora=!has(a,'bilateral')&&!has(a,'radial')&&has(a,'root'),base=new THREE.Color('#98b99e').offsetHSL(dev.hue,.03,0),L=dev.length,B=dev.width;
  const pale=base.clone().lerp(new THREE.Color('#e7dfc2'),.5),dark=base.clone().multiplyScalar(.43);
  const materials=[],attachments=[];let region='body';
  const bellR=.62+L*.18,bellH=.35+B;
  const profilePoints=[.045,.10,.20,.29,.37,.4,.4,.35,.26,.14,.015];
  function axialRadius(x){const u=Math.max(0,Math.min(1,(x/L+1)/2)),n=u*10,i=Math.min(9,Math.floor(n)),t=n-i,p0=profilePoints[Math.max(0,i-1)],p1=profilePoints[i],p2=profilePoints[i+1],p3=profilePoints[Math.min(10,i+2)];return .5*(2*p1+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t+(-p0+3*p1-3*p2+p3)*t*t*t)*(B/.4)*(has(a,'segments')?1-.035*Math.cos(u*dev.repeats*TAU):1);}
- const cells=plan==='cell'?[{p:[0,0,0],s:1}]:Array.from({length:dev.branches},(_,i)=>{const t=i*2.4;return {p:[Math.cos(t)*L*.48,Math.sin(t)*B*.82,Math.sin(t*1.3)*B*.25],s:.6};});
+ // Each visible envelope is one paid cell. The compact cluster stays connected as it grows.
+ const cells=Array.from({length:dev.cells},(_,i)=>{
+  if(dev.cells===1)return {p:[0,0,0],s:1};
+  const s=1/dev.scale,y=1-2*(i+.5)/dev.cells,r=Math.sqrt(1-y*y),angle=i*2.399963229728653;
+  return {p:[Math.cos(angle)*r*L*s*.92,y*B*s*.92,Math.sin(angle)*r*B*.8*s*.92],s};
+ });
  function mount(q){
   if(micro){let best=null,score=Infinity;for(const c of cells){const d=q.map((v,i)=>v-c.p[i]),r=[L*c.s,B*c.s,B*.8*c.s],n=Math.sqrt(d.reduce((v,x,i)=>v+(x/r[i])**2,0))||1,p=d.map((v,i)=>c.p[i]+v/n*.97),dist=p.reduce((v,x,i)=>v+(x-q[i])**2,0);if(dist<score){score=dist;best=p;}}return best;}
   if(plan==='radial'){
@@ -96,7 +101,7 @@ export function buildOrganism(a,color,{anatomy=false}={}){
   region='body';
   if(has(a,'osmotic'))for(const side of [-1,1])ellipsoid(...mount([-.4,side*.18,.06]),.045,.025,.03,clear);
   if(has(a,'spore'))for(let i=0;i<16;i++){const t=i*2.4;ellipsoid(...mount([Math.cos(t)*L*.92,Math.sin(t)*B*.9,.09]),.008,.013,.008,soft);}
-  if(has(a,'budding')){const bud=joint([-.2,B+.03,0],'bud');ellipsoid(...bud,.2,.16,.15,cellMat);internal(bud,.23);}
+  // Buds are represented by actual colony cells, rather than an extra uncounted cell mesh.
   if(has(a,'detritus'))for(let i=0;i<9;i++)path([mount([L*.7,(i-4)*.024,.02]),mount([L*.85,(i-4)*.025,.03])],.004,.001,soft,8);
   if(has(a,'root'))for(let i=0;i<6;i++)path([joint([0,-B,0],'root'),[(i-2.5)*.18,-.65,.08],[(i-2.5)*.3,-.95,.04]],.012,.001,soft,24);
  }
@@ -227,6 +232,10 @@ export function buildOrganism(a,color,{anatomy=false}={}){
  region='body';
  if(has(a,'radiant')){for(let i=0;i<24;i++){const t=i/24*TAU;ellipsoid(...mount([Math.cos(t)*L*.6,Math.sin(t)*B,.035]),.009,.009,.009,material('#ccbb80',{emissive:'#ccbb80',emissiveIntensity:.8}));}}
  if(has(a,'hive')||has(a,'schooling'))for(let i=0;i<9;i++)ellipsoid(...mount([(i-4)*L*.08,flora?-.1:B*.5,B*.55]),.008,.009,.007,material('#a3cdd2',{emissive:'#679fa8',emissiveIntensity:.5}));
+ // Apply growth to the entire assembly so organ roots and animated groups remain attached.
+ for(const child of root.children){child.position.multiplyScalar(dev.scale);child.scale.multiplyScalar(dev.scale);}
+ for(const attachment of attachments)attachment.point=attachment.point.map(value=>value*dev.scale);
+ for(const cell of cells){cell.p=cell.p.map(value=>value*dev.scale);cell.s*=dev.scale;}
  // Normalize to a shared specimen scale without altering anatomical proportions.
  const bounds=new THREE.Box3().setFromObject(root),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());for(const child of root.children)child.position.sub(center);root.scale.setScalar(2.6/Math.max(size.x,size.y,size.z));
  root.userData={region:null,signature:a.traits.join(','),genes:g,motions,development:dev,bodyPlan:dev.label,plan,modules:dev.modules,anatomy,materials,attachments,normalization:{center:center.toArray(),scale:2.6/Math.max(size.x,size.y,size.z)},cells:micro?cells:[],fit:{width:size.x*2.6/Math.max(size.x,size.y,size.z),height:size.y*2.6/Math.max(size.x,size.y,size.z),depth:size.z*2.6/Math.max(size.x,size.y,size.z)},pose:has(a,'flight')?.8:plan==='radial'?.55:.2};return root;

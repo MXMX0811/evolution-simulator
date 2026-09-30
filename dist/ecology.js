@@ -1,5 +1,14 @@
 // A fixed-composition organic pool. N is an abstract conserved nutrient, not real chemistry.
 export const N_RATIO=.035;
+export const FOOD_SOURCES=['photons','redox','plankton','detritus','prey','radiant'];
+export function emptySources(){return Object.fromEntries(FOOD_SOURCES.map(key=>[key,0]));}
+export function recordIntake(w,a,source,amount){
+ if(amount<=0)return;
+ const decay=Math.exp(-(w.tick-a.feeding.tick)/600);
+ for(const key of FOOD_SOURCES)a.feeding.sources[key]*=decay;
+ a.feeding.tick=w.tick;a.feeding.sources[source]+=amount;
+ a.energyLedger.sources[source]+=amount;
+}
 export function inventory(w){
  let organic=0,redox=0,nutrient=0;for(const f of w.fields){organic+=f.plankton+f.detritus;redox+=f.redox;nutrient+=f.nutrient;}
  for(const a of w.agents)if(a.alive)organic+=a.energy+a.bodyEnergy;
@@ -12,23 +21,24 @@ export function recentFlows(w){return Object.values(w.foodWeb).map(f=>({...f,amo
 export function injectLife(w,a){const amount=a.energy+a.bodyEnergy;w.ecology.energyIn+=amount;w.ecology.nutrientIn+=amount*N_RATIO;}
 export function dissipate(w,f,amount){w.ecology.heat+=amount;f.nutrient+=amount*N_RATIO;}
 export function spend(w,a,amount,category='maintenance'){const paid=Math.min(a.energy,Math.max(0,amount));a.energy-=paid;a.energyLedger[category]+=paid;dissipate(w,w.fieldAt(a.x,a.y),paid);return paid;}
+export function reserveCapacity(a){return (42+a.form.storage)*Math.pow(a.cells,.75);}
 export function synthesize(w,a,f,source,demand,efficiency){
- const room=Math.max(0,42+a.form.storage-a.energy),gain=Math.max(0,Math.min(demand*efficiency,f[source]*efficiency,f.nutrient/N_RATIO,room));
+ const room=Math.max(0,reserveCapacity(a)-a.energy),gain=Math.max(0,Math.min(demand*efficiency,f[source]*efficiency,f.nutrient/N_RATIO,room));
  const absorbed=gain/efficiency;f[source]-=absorbed;f.nutrient-=gain*N_RATIO;a.energy+=gain;a.energyLedger.intake+=gain;
  w.ecology.heat+=absorbed-gain;if(source!=='redox')w.ecology.energyIn+=absorbed;
- w.ecology[source==='redox'?'chemical':'photo']+=gain;recordFlow(w,source,a.species,gain);return gain;
+ if(source==='redox')w.ecology.chemical+=gain;else if(source==='photons')w.ecology.photo+=gain;recordFlow(w,source,a.species,gain);recordIntake(w,a,source,gain);return gain;
 }
 export function ingest(w,a,f,source,demand,efficiency){
- const eaten=Math.max(0,Math.min(f[source],demand,Math.max(0,42+a.form.storage-a.energy)/efficiency));
- const gain=eaten*efficiency;f[source]-=eaten;f.detritus+=eaten-gain;a.energy+=gain;a.energyLedger.intake+=gain;recordFlow(w,source,a.species,gain);return gain;
+ const eaten=Math.max(0,Math.min(f[source],demand,Math.max(0,reserveCapacity(a)-a.energy)/efficiency));
+ const gain=eaten*efficiency;f[source]-=eaten;f.detritus+=eaten-gain;a.energy+=gain;a.energyLedger.intake+=gain;recordFlow(w,source,a.species,gain);recordIntake(w,a,source,gain);return gain;
 }
 export function recycleBody(w,a){const f=w.fieldAt(a.x,a.y);f.detritus+=a.energy+a.bodyEnergy;a.energy=0;a.bodyEnergy=0;}
 export function preySuitability(a,b){const ratio=b.development.mass/a.development.mass;return Math.exp(-(Math.log(ratio/.65)**2)/(2*.95**2));}
 export function eatPrey(w,a,b){
  const available=b.energy+b.bodyEnergy,efficiency=Math.min(.9,.58+a.form.digest+(a.traits.includes('oxygen')?w.oxygen*.14:0));
- const gain=Math.min(available*efficiency,Math.max(0,42+a.form.storage-a.energy));
+ const gain=Math.min(available*efficiency,Math.max(0,reserveCapacity(a)-a.energy));
  a.energy+=gain;a.energyLedger.intake+=gain;w.fieldAt(b.x,b.y).detritus+=available-gain;b.energy=0;b.bodyEnergy=0;
- recordFlow(w,b.species,a.species,gain);return gain;
+ recordFlow(w,b.species,a.species,gain);recordIntake(w,a,'prey',gain);return gain;
 }
 export function advanceResources(w,cols,rows){
  const ledger=w.ecology;

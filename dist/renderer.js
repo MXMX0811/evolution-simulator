@@ -29,13 +29,14 @@ export class WorldRenderer{
   for(const p of world.vents){c.strokeStyle='#d4be7670';c.lineWidth=1;c.beginPath();c.arc(p.x,p.y,7,0,6.29);c.stroke();c.beginPath();c.moveTo(p.x-3,p.y);c.lineTo(p.x+3,p.y);c.moveTo(p.x,p.y-3);c.lineTo(p.x,p.y+3);c.stroke();c.strokeStyle='#d4be7618';c.beginPath();c.arc(p.x,p.y,18+Math.sin(world.tick*.03)*3,0,6.29);c.stroke();}
   const colors=new Map(world.species.map(s=>[s.id,s.color]));
   for(const a of world.agents){
-   c.globalAlpha=this.selected&&a.species!==this.selected?.18:(a.sleeping?.35:.92);const color=colors.get(a.species);const radius=2+Math.min(2,a.age/130)+(has(a,'tissue')?1.1:0);
+   c.globalAlpha=this.selected&&a.species!==this.selected?.18:(a.sleeping?.35:.92);const color=colors.get(a.species);const radius=2.8*a.development.scale;
    c.fillStyle=color;c.strokeStyle=color;c.lineWidth=.8;
    c.save();c.translate(a.x,a.y);c.rotate(a.angle);const r=radius,dev=a.development;
    if(has(a,'flagella')){c.beginPath();c.moveTo(-r,0);c.quadraticCurveTo(-r-4,Math.sin(world.tick*.15+a.id)*2,-r-8,0);c.stroke();}
    if(has(a,'vascular')||has(a,'mycelium')){for(let j=0;j<5;j++){const phi=j*1.256;c.beginPath();c.moveTo(0,0);c.lineTo(Math.cos(phi)*r*2,Math.sin(phi)*r*2);c.stroke();if(has(a,'canopy')){c.beginPath();c.ellipse(Math.cos(phi)*r*1.5,Math.sin(phi)*r*1.5,r,.5*r,phi,0,6.29);c.fill();}}}
    if(has(a,'radial')){for(let j=0;j<dev.repeats;j++){const phi=j*Math.PI*2/dev.repeats;c.beginPath();c.ellipse(Math.cos(phi)*r*.7,Math.sin(phi)*r*.7,r,.45*r,phi,0,6.29);c.fill();}}
    else if(has(a,'segments')){for(let j=0;j<4;j++){c.beginPath();c.ellipse((j-1.5)*r*.7,Math.sin(j+world.tick*.08)*.5,r*.65,r*.72,0,0,6.29);c.fill();}}
+   else if(a.cells>1&&!has(a,'tissue')){const cellRadius=r/Math.cbrt(a.cells);for(let j=0;j<a.cells;j++){const phi=j*2.4,spread=j?Math.sqrt(j/a.cells)*r*.65:0;c.beginPath();c.ellipse(Math.cos(phi)*spread,Math.sin(phi)*spread,cellRadius*dev.length,cellRadius*(.65+dev.width),0,0,6.29);c.fill();}}
    else{c.beginPath();c.ellipse(0,0,r*dev.length,r*(.65+dev.width),0,0,6.29);c.fill();}
    for(const [id,offset,span] of [['flight',.4,2.5],['fins',-.5,1.5]])if(has(a,id))for(const side of [-1,1]){c.beginPath();c.moveTo(r*(offset+.5),0);c.lineTo(r*(offset-.3),side*r*span*dev.appendage);c.lineTo(r*(offset-.6),0);c.closePath();c.fill();}
    if(has(a,'limbs')){for(const side of [-1,1])for(let j=0;j<dev.repeats;j++){const x=(j/(dev.repeats-1)-.5)*r*2;c.beginPath();c.moveTo(x,side*r*.4);c.lineTo(x-r*.4,side*r*1.8*dev.appendage);c.stroke();}}
@@ -44,7 +45,7 @@ export class WorldRenderer{
   }
   c.globalAlpha=1;
   const tracked=world.agents.find(a=>a.id===this.tracked);
-  if(tracked){c.strokeStyle='#defbe9';c.lineWidth=1.3;c.beginPath();c.arc(tracked.x,tracked.y,10,0,Math.PI*2);c.stroke();c.font='11px monospace';c.fillStyle='#defbe9';c.fillText('#'+tracked.id,Math.min(W-65,tracked.x+14),Math.max(16,tracked.y-10));}
+  if(tracked){const side=Math.sqrt(W/COLS*H/ROWS)*Math.cbrt(tracked.development.mass);c.strokeStyle='#b7e3c93b';c.setLineDash([3,3]);c.strokeRect(tracked.x-side/2,tracked.y-side/2,side,side);c.setLineDash([]);c.strokeStyle='#defbe9';c.lineWidth=1.3;c.beginPath();c.arc(tracked.x,tracked.y,10,0,Math.PI*2);c.stroke();c.font='11px monospace';c.fillStyle='#defbe9';c.fillText('#'+tracked.id,Math.min(W-65,tracked.x+14),Math.max(16,tracked.y-10));}
   if(world.impact?.until>world.tick){c.strokeStyle='#edb47780';c.lineWidth=2;c.beginPath();c.arc(world.impact.x,world.impact.y,210,0,6.29);c.stroke();}
  }
  hit(clientX,clientY,world){const b=this.canvas.getBoundingClientRect(),x=(clientX-b.left)/b.width*W,y=(clientY-b.top)/b.height*H;let best=null,dist=24;for(const a of world.agents){const d=Math.hypot(a.x-x,a.y-y);if(d<dist){best=a;dist=d;}}return best;}

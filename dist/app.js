@@ -5,6 +5,7 @@ import {WorldRenderer,drawHistory} from './renderer.js';
 import {escape,direction,inspector,traitView,lineageView,journalView,guideView} from './views.js';
 import {SpecimenRenderer,morphologyView,specimenDialog,nextCombinations,useCombination,setShape,setStructure} from './morphology.js';
 import {observationView,snapshotView} from './observation-view.js';
+import {diagnosticsView} from './diagnostics-view.js';
 const $=id=>document.getElementById(id);
 let world=new World(),running=true,speed=1,selected=null,view='world',selectedTrait='pigment',traitLane='all',traitQuery='',morphMode='living',pathMode='path',selectedLineage=null,journalFilter='all',journalLimit=80,lastRendered=-1,toastTimer;
 let graphDragging=false;
@@ -104,7 +105,9 @@ function renderArchive(container,html){
  const attribute=['id','data-observe','data-region','data-size','data-filter'].find(name=>active?.hasAttribute(name));
  const value=attribute?active.getAttribute(attribute):null;
  const inputValue=active?.tagName==='INPUT'?active.value:null;
+ const diagnosticScroll=container.querySelector('.diagnostics-table-scroll')?.scrollLeft||0;
  container.innerHTML=html;
+ const diagnosticTable=container.querySelector('.diagnostics-table-scroll');if(diagnosticTable)diagnosticTable.scrollLeft=diagnosticScroll;
  container.querySelectorAll('details').forEach(d=>{d.open=open.has(panelKey(d));});
  if(attribute){const next=container.querySelector(`[${attribute}="${CSS.escape(value)}"]`);if(next&&inputValue!==null)next.value=inputValue;next?.focus({preventScroll:true});}
 }
@@ -112,7 +115,7 @@ function renderView(){
  if(view==='lineage')graphPage('lineage',$('lineage-content'),lineageView(world,selected,selectedLineage,graphState.lineage.zoom));
  if(view==='tree'){const focused=document.activeElement?.id==='trait-search',caret=focused?document.activeElement.selectionStart:0;graphPage('traits',$('tree-content'),traitView(world,selected,selectedTrait,traitLane,traitQuery,pathMode,graphState.traits.zoom));if(focused){$('trait-search').focus({preventScroll:true});$('trait-search').setSelectionRange(caret,caret);}}
  if(view==='ecosystem'){const container=$('ecosystem-content'),open=[...container.querySelectorAll('details')].map(d=>d.open),old=container.querySelector('.foodweb-scroll'),x=old?.scrollLeft||0,y=old?.scrollTop||0,focus=container.contains(document.activeElement)?document.activeElement?.dataset?.ecoSpecies:null;container.innerHTML=ecosystemView(world,selected);container.querySelectorAll('details').forEach((d,i)=>d.open=!!open[i]);const scroll=container.querySelector('.foodweb-scroll');scroll.scrollLeft=x;scroll.scrollTop=y;if(focus)container.querySelector(`[data-eco-species="${focus}"]`)?.focus({preventScroll:true});}
- if(view==='journal')renderArchive($('journal-content'),snapshotView(checkpoint)+journalView(world,journalFilter,journalLimit));
+ if(view==='journal')renderArchive($('journal-content'),snapshotView(checkpoint)+diagnosticsView(world)+journalView(world,journalFilter,journalLimit));
  if(view==='observation')renderArchive($('observation-content'),observationView(world,individualId,comparisonId,bodyRegion,bodySize));
  if(view==='morphology'){const old=$('morphology-content').querySelector('.lab-structures'),scroll=old?.scrollTop||0;$('morphology-content').innerHTML=morphologyView(world,selected,morphMode);const lab=$('morphology-content').querySelector('.lab-structures');if(lab)lab.scrollTop=scroll;}
 }
@@ -183,9 +186,9 @@ document.addEventListener('click',e=>{
   comparisonWorker.onerror=()=>{checkpoint.busy=false;checkpoint.error='对照计算未能完成，请重新保存快照后尝试。';comparisonWorker.terminate();comparisonWorker=null;if(view==='journal')renderView();};
   comparisonWorker.postMessage({snapshot:checkpoint.snapshot.text,change:checkpoint.change});renderView();
  }
- if(e.target.closest('[data-export-comparison]'))download(`源海-v5-配对对照-T${checkpoint.snapshot.tick}.json`,JSON.stringify({version:5,snapshot:JSON.parse(checkpoint.snapshot.text),results:checkpoint.results,interpretation:'三次配对重复，生物随机状态在重复间改变；不是置信区间或普遍因果结论。'},null,2),'application/json');
+ if(e.target.closest('[data-export-comparison]'))download(`源海-v6-配对对照-T${checkpoint.snapshot.tick}.json`,JSON.stringify({version:6,snapshot:JSON.parse(checkpoint.snapshot.text),results:checkpoint.results,interpretation:'三次配对重复，生物随机状态在重复间改变；不是置信区间或普遍因果结论。'},null,2),'application/json');
 });
-$('save-button').onclick=()=>{download(`源海-v5-T${world.tick}.json`,world.serialize(),'application/json');notify('完整世界与生命档案已导出，可从同一时步继续演化。');};
+$('save-button').onclick=()=>{download(`源海-v6-T${world.tick}.json`,world.serialize(),'application/json');notify('完整世界与生命档案已导出，可从同一时步继续演化。');};
 $('load-button').onclick=()=>$('load-input').click();
 $('load-input').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>128000000)throw new Error('存档不能大于 128 MB');const restored=World.restore(await file.text());world=restored;clearObservation();selected=null;selectedLineage=null;renderer.lastTerrain=-1;lastRendered=-1;setRunning(false);changeView('world');notify('存档已载入，点击继续即可恢复演化。');}catch(error){notify('读取失败：'+error.message);}e.target.value='';};
 $('report-button').onclick=()=>{
